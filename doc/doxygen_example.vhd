@@ -1,6 +1,8 @@
 -------------------------------------------------------
---! @file
+--! @file doxygen_example.vhd
 --! @brief 2:1 Mux using with-select
+--! Reference: http://www.stack.nl/~dimitri/doxygen/docblocks.html#vhdlblocks
+--! Commands: http://www.stack.nl/~dimitri/doxygen/commands.html
 -------------------------------------------------------
 
 --! Use standard library
