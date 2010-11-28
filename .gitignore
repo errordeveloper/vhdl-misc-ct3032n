@@ -2,3 +2,8 @@
 *.o
 *.so
 *.a
+*.bak
+doc/html/
+doc/latex/
+# ignore qurtus files for now
+code/projects/
