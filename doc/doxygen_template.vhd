@@ -6,19 +6,19 @@
 -------------------------------------------------------
 
 --! Use standard library
-library ieee;
+Library IEEE;
 --! Use logic elements
-    use ieee.std_logic_1164.all;
+    use IEEE.STD_LOGIC_1164.all;
 
 --! UNIT entity brief description
 
 --! Detailed description of this 
 --! UNIT design element.
-entity UNIT is
-    port (
+Entity UNIT is
+  Port (
         INPUT:	in	std_Logic; --! UNIT input
         OUTPUT:	out	std_Logic  --! UNIT output
-    );
+       );
 end entity;
 
 --! @brief Architure definition of the UNIT
