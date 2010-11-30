@@ -5,9 +5,9 @@
 -------------------------------------------------------
 
 --! Use standard library
-library ieee;
+Library IEEE;
 --! Use logic elements
-    use ieee.std_logic_1164.all;
+    use IEEE.STD_LOGIC_1164.all;
 
 --! UBSR4 is designed after 74194 IC.
 
@@ -49,7 +49,7 @@ Entity UBSR4 is
 	L:	in	std_Logic; --! Shift Left
 	R:	in	std_Logic; --! Shift Right
 	K:	in	std_Logic; --! Clock
-	C:	in	std_Logic; --! Clear
+	C:	in	std_Logic --! Clear
     );
 end entity;
 
@@ -58,16 +58,28 @@ end entity;
 Architecture logic of UBSR4 is
 begin
 
-	g0 <= ( F0 and (not M(0)) and M(1) ); -- 1st AND gate with F0 feedback input
+  signal flw: std_Logic_Vector ( 3 DOWNTO 0 ); --! Feedback Path
+  signal latch: std_Logic_Vector ( 3 DOWNTO 0 ); --! Latch Inputs
 
-	g1 <= ( k and (not M(0)) and (not M(1)) );  -- 2nd AND gate
+  process ( I, M, L, R, C, K )
+  begin
 
-	g2 <= ( F1 and  M(0) and (not M(1)) ); -- 3rd AND gate with F1 feedback input
+	procedure logic_pattern (
+		ff0: in std_Logic; --! First Function-feed Input
+		ff1: in std_Logic; --! Second Function-feed Input
+		ff2: in std_Logic; --! Third Function-feed Input
+		b: in std_Logic; --! Input Bit
+		m: in std_Logic_Vector; --! Mode Control
+		o: out std_Logic; --!Logic Output
+		) is
+	
+	o :=
+	  ( b and (not m(0)) and (not m(1)) ) OR
+	  ( ff0 and (not m(0)) and m(1) ) OR 
+	  ( ff1 and  m(0) and (not m(1)) ) OR
+	  ( ff2 and m(0) and m(1) );
 
-	g3 <= ( F2 and M(0) and M(1) ); -- 4th AND gate with F2 feedback input
-
-	Sl <= ( g0 OR g1 OR g2 OR g3 );
-
-	Rl <= ( not Sl )
+	end procedure;
+  end process;
 
 end architecture;

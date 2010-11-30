@@ -47,7 +47,7 @@ library ieee;
 --! This description is take from original Texas Instruments datasheet
 --! dated March 1976 with latest revision in March 1988.
 
-Entity UBSR4 is
+Entity SC4 is
     port (
         I:	in	std_Logic_Vector ( 3 DOWNTO 0 ); --! Input Bits
         X:	out	std_Logic_Vector ( 3 DOWNTO 0 ); --! Output Bits
@@ -61,19 +61,8 @@ end entity;
 
 --! @brief Architure definition of the UNIT
 --! @details More details about this element.
-Architecture logic of UBSR4 is
+Architecture logic of SC4 is
 begin
 
-	g0 <= ( F0 and (not M(0)) and M(1) ); -- 1st AND gate with F0 feedback input
-
-	g1 <= ( k and (not M(0)) and (not M(1)) );  -- 2nd AND gate
-
-	g2 <= ( F1 and  M(0) and (not M(1)) ); -- 3rd AND gate with F1 feedback input
-
-	g3 <= ( F2 and M(0) and M(1) ); -- 4th AND gate with F2 feedback input
-
-	Sl <= ( g0 OR g1 OR g2 OR g3 );
-
-	Rl <= ( not Sl )
 
 end architecture;
