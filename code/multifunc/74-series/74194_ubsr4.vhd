@@ -43,43 +43,63 @@ Library IEEE;
 
 Entity UBSR4 is
     port (
-        I:	in	std_Logic_Vector ( 3 DOWNTO 0 ); --! Input Bits
-        X:	out	std_Logic_Vector ( 3 DOWNTO 0 ); --! Output Bits
-	M:	in	std_Logic_Vector ( 1 DOWNTO 0 ); --! Mode Control
+   I:	in		std_Logic_Vector ( 3 DOWNTO 0 ); --! Input Bits
+   X:	out	std_Logic_Vector ( 3 DOWNTO 0 ); --! Output Bits
+	M:	in		std_Logic_Vector ( 1 DOWNTO 0 ); --! Mode Control
 	L:	in	std_Logic; --! Shift Left
 	R:	in	std_Logic; --! Shift Right
 	K:	in	std_Logic; --! Clock
-	C:	in	std_Logic --! Clear
+	C:	in	std_Logic  --! Clear
     );
 end entity;
 
 --! @brief Architure definition of the UNIT
 --! @details More details about this element.
-Architecture logic of UBSR4 is
-begin
+Architecture behav of UBSR4 is
 
-  signal flw: std_Logic_Vector ( 3 DOWNTO 0 ); --! Feedback Path
-  signal latch: std_Logic_Vector ( 3 DOWNTO 0 ); --! Latch Inputs
+  signal flw: std_Logic_Vector ( 3 DOWNTO 0 ) := "1111"; --! Feedback Path
+  --signal latch: std_Logic_Vector ( 3 DOWNTO 0 ); --! Latch Inputs
 
-  process ( I, M, L, R, C, K )
-  begin
-
-	procedure logic_pattern (
-		ff0: in std_Logic; --! First Function-feed Input
-		ff1: in std_Logic; --! Second Function-feed Input
-		ff2: in std_Logic; --! Third Function-feed Input
-		b: in std_Logic; --! Input Bit
-		m: in std_Logic_Vector; --! Mode Control
-		o: out std_Logic; --!Logic Output
+  	procedure logic_pattern (
+		signal ff0: in std_Logic; --! First Function-feed Input
+		signal ff1: in std_Logic; --! Second Function-feed Input
+		signal ff2: in std_Logic; --! Third Function-feed Input
+		signal b: in std_Logic; --! Input Bit
+		signal m: in std_Logic_Vector; --! Mode Control
+		signal o: out std_Logic --!Logic Output
 		) is
-	
-	o :=
-	  ( b and (not m(0)) and (not m(1)) ) OR
-	  ( ff0 and (not m(0)) and m(1) ) OR 
-	  ( ff1 and  m(0) and (not m(1)) ) OR
-	  ( ff2 and m(0) and m(1) );
+	begin
+	o <= (
+			( b and (not m(0)) and (not m(1)) ) OR
+			( ff0 and (not m(0)) and m(1) ) OR
+			( ff1 and  m(0) and (not m(1)) ) OR
+			( ff2 and m(0) and m(1) )
+		);
 
 	end procedure;
+	
+begin
+
+  process ( I, M, L, R, C, K, flw )
+  begin
+	
+	If ( K = '0' and K'event ) then
+	
+	logic_pattern ( R, flw(1), flw(0), I(0), M, X(0) );
+	logic_pattern ( flw(0), flw(2), flw(1), I(1), M, X(1) );
+	logic_pattern ( flw(1), flw(3), flw(2), I(2), M, X(2) );
+	logic_pattern ( flw(2), L, flw(3), I(3), M, X(3) );
+
+	elsif ( C = '1' ) then
+	X <= "0000";
+	end if;
+	
+	-- for n in 0 to 3 loop
+	-- X(n) <= flw(n);
+	-- end loop;
+	
+	X <= flw;
+	
   end process;
 
 end architecture;
