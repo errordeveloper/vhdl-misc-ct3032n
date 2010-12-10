@@ -8,3 +8,5 @@ doc/latex/
 doc/work/
 # ignore qurtus files for now
 code/projects/
+*.cf
+*.ini
