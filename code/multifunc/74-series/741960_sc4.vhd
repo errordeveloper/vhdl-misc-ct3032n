@@ -48,7 +48,7 @@ library ieee;
 --! dated March 1976 with latest revision in March 1988.
 
 Entity SC4 is
-    port (
+    PORT (
         I:	in	std_Logic_Vector ( 3 DOWNTO 0 ); --! Input Bits
         X:	out	std_Logic_Vector ( 3 DOWNTO 0 ); --! Output Bits
 	M:	in	std_Logic_Vector ( 1 DOWNTO 0 ); --! Mode Control
@@ -62,7 +62,12 @@ end entity;
 --! @brief Architure definition of the UNIT
 --! @details More details about this element.
 Architecture logic of SC4 is
+
+   SIGNAL flw: std_Logic_Vector ( 3 DOWNTO 0 ) <= "0000"; --! Feedback Path
+
 begin
+
+   main: PROCESS ( I, M, R, L, C, K, flw )
 
 
 end architecture;

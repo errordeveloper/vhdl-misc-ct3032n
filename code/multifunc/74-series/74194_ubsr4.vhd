@@ -42,14 +42,14 @@ Library IEEE;
 --! dated March 1974 with latest revision in March 1988.
 
 Entity UBSR4 is
-    port (
-          I:	in	std_Logic_Vector ( 3 DOWNTO 0 ); --! Input Bits
-          X:	out	std_Logic_Vector ( 3 DOWNTO 0 ); --! Output Bits
-          M:	in	std_Logic_Vector ( 1 DOWNTO 0 ); --! Mode Control
-          L:	in	std_Logic; --! Shift Left
-          R:	in	std_Logic; --! Shift Right
-          K:	in	std_Logic; --! Clock
-          C:	in	std_Logic  --! Clear
+    PORT (
+          I:	in	std_Logic_Vector ( 3 DOWNTO 0 ); --! Input Bits [Pins 3 - 6]
+          X:	out	std_Logic_Vector ( 3 DOWNTO 0 ); --! Output Bits [Pins 12 - 15]
+          M:	in	std_Logic_Vector ( 1 DOWNTO 0 ); --! Mode Control [Pins 9 and 10]
+          L:	in	std_Logic; --! Shift Left [Pin 2]
+          R:	in	std_Logic; --! Shift Right [Pin 7]
+          K:	in	std_Logic; --! Clock [Pin 11]
+          C:	in	std_Logic  --! Clear [Pin 1]
     );
 end entity;
 
@@ -57,7 +57,7 @@ end entity;
 --! @details More details about this element.
 Architecture logic of UBSR4 is
 
-  signal flw: std_Logic_Vector ( 3 DOWNTO 0 ); --! Feedback Path
+  SIGNAL flw: std_Logic_Vector ( 3 DOWNTO 0 ) <= "0000"; --! Feedback Path
 
   procedure logic_pattern (
 	signal ff0: in std_Logic; --! First Function-feed Input
@@ -79,7 +79,7 @@ Architecture logic of UBSR4 is
 	
 begin
 
-  process ( I, M, R, L, C, K, flw )
+  main: PROCESS ( I, M, R, L, C, K, flw )
   begin
 	
      If ( C = '0' ) then --! Asyncronous clear
@@ -99,7 +99,7 @@ begin
      end if;
 	 
 
-  end process;
+  end process; -- main
   
   X <= flw;
   

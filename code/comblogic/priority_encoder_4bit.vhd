@@ -36,11 +36,17 @@ begin
   
    case V is
 
-   when "XXX1" =>
+-- This is not gonna work because
+-- that's something that by definition
+-- never occurs!
+
+   --when "XXX1" =>
+when V(0) = '1' -- TODO: V(0) = '1' and V(0)'event
    	Q <= V(0);
 	W <= "00";
 
-   when "XX10" =>
+   --when "XX10" =>
+when V(1 DOWNTO 0) = "10"
    	Q <= V(1);
 	W <= "01";
 
