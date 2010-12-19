@@ -1,15 +1,15 @@
 -------------------------------------------------------
 --! @file doxygen_template.vhd
---! @brief PE4 doxygen template
+--! @brief PE4 is a 4-bit Priority Encoder
 -------------------------------------------------------
 
 --! Use standard library
 Library IEEE;
 --! Use logic elements
     use IEEE.STD_LOGIC_1164.all;
---! Use unsigned binary
+--! Use unsigned binary valuse
 	 use IEEE.STD_LOGIC_UNSIGNED.all;
---! Use numeric functions
+--! Use numeric functions for convertion
     use IEEE.NUMERIC_STD.all;
 
 --! PE4 entity brief description
@@ -17,49 +17,56 @@ Library IEEE;
 --! Detailed description of this 
 --! PE4 design element.
 Entity PE4 is
-  Port (
+  PORT (
         V:	in	std_Logic_Vector ( 3 DOWNTO 0 ); --! Prioritized Inputs
 	A:	out	std_Logic_Vector ( 1 DOWNTO 0 ); --! Address Output
         X:	out	std_Logic  --! Output
        );
 end entity;
 
---! @brief Architure definition of the PE4
---! @details More details about this element.
+--! @brief Architure definition of the 4-bit Priority Encoder (PE4)
+--! @details The address output holds previous value untill it changes.
+--!				Otherwise it would require an extra bit.
 Architecture logic of PE4 is
 
+--! @brief Masking Function
+--! @details Checking has to be done prior procedure call.
 procedure maskf (
-		signal V: in std_Logic;
-		signal X: out std_Logic;
-		constant M: unsigned;
-		signal W: out std_Logic_Vector
-							) is
-begin
-		X <= V;
-		W <= STD_LOGIC_VECTOR(M);
+	signal V: in std_Logic_Vector(3 DOWNTO 0); --! Input Signal - the name of the vector
+	constant M: natural; --! Input Bit - it is being converted to unsigned vector
+		signal X: out std_Logic; --! Output Bit
+		signal W: out std_Logic_Vector(1 DOWNTO 0) --! Input Bit Address
+	) is begin
+	
+		X <= V(M); -- Output the bit value
+		W <= STD_LOGIC_VECTOR(TO_UNSIGNED(M, 2));
 
 end procedure;
 
-
-  signal W: std_Logic_Vector ( 1 DOWNTO 0 );
-  signal Q: std_Logic;
+  SIGNAL W: std_Logic_Vector ( 1 DOWNTO 0 ); --! Internal Address Bus
+  SIGNAL Q: std_Logic; --! Internal Output Bus
 
 begin
 
-  process ( V )
-  begin
+  PROCESS ( V ) begin
   
-   If ( V(0) = '1' ) then
-		maskf(V(0), Q, "00", W);
+  -- It cannot be edge-triggered,
+  -- so only level triggering is implemented.
+  -- Using rising_edge() for each brach causes
+  -- multiple clock problem.
+  -- This is probably most straight-forward way.
+     
+	If ( V(0) = '1' ) then
+		maskf(V, 0, Q, W);
 		
 	Elsif ( V(1) = '1' ) then
-		maskf(V(1), Q, "01", W);
+		maskf(V, 1, Q, W);
 		
 	Elsif ( V(2) = '1' ) then
-		maskf(V(2), Q, "10", W);
+		maskf(V, 2, Q, W);
 		
 	Elsif ( V(3) = '1' ) then
-		maskf(V(3), Q, "11", W);
+		maskf(V, 3, Q, W);
 		
 	Else Q <= '0';
 	end if;
