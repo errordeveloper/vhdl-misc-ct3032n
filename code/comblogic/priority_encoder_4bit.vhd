@@ -7,56 +7,79 @@
 Library IEEE;
 --! Use logic elements
     use IEEE.STD_LOGIC_1164.all;
---! Use unsigned binary valuse
-	 use IEEE.STD_LOGIC_UNSIGNED.all;
+--! Use unsigned binary values
+    use IEEE.STD_LOGIC_UNSIGNED.all;
 --! Use numeric functions for convertion
     use IEEE.NUMERIC_STD.all;
 
---! PE4 entity brief description
+--! @brief PE4 entity is a 4-bit Priority Encoder
 
---! Detailed description of this 
---! PE4 design element.
+--! @details Priority Ecoder is a type of logic device
+--! that takes a number of inputs. It outputs
+--! only one input value based on priority.
+--! If there is an event at input A,
+--! then other inputs are ignored.
+--! If input A is quite, then input B is checked,
+--! the last input (N) will be output only when
+--! N-1 and all other inpust are quite.
+--! Priority Encoders are offten used
+--! to connect many inputs to one external
+--! interrupt pin of a microcontroller.
+--! Priority encoder also ouputs the address
+--! of currently active input pin.
 Entity PE4 is
+
+  GENERIC (dopt_logic1: boolean := false; --! Frirst design option
+	  dopt_logic2: boolean := true; --! Second design option using std_match()
+	  dopt_invalid: boolean := false); --! Invalid design option, cannot synthesize
+
   PORT (
         V:	in	std_Logic_Vector ( 3 DOWNTO 0 ); --! Prioritized Inputs
 	A:	out	std_Logic_Vector ( 1 DOWNTO 0 ); --! Address Output
         X:	out	std_Logic  --! Output
        );
 
---! @brief Masking Function
---! @details Checking has to be done prior procedure call.
-procedure maskf (
-	signal V: in std_Logic_Vector(3 DOWNTO 0); --! Input Signal - the name of the vector
-	constant M: natural; --! Input Bit - it is being converted to unsigned vector
-		signal X: out std_Logic; --! Output Bit
-		signal W: out std_Logic_Vector(1 DOWNTO 0) --! Input Bit Address
+--! @name Masking Function
+--! @brief Takes vector V, masks one bit M and outputs 
+--! V(M) to the output vector bus X, writing the
+--! mask address of this bit M to the address vector bus W.
+--! @note Event condition checking has to be done prior procedure call.
+ procedure maskf (
+	signal V:	in std_Logic_Vector(3 DOWNTO 0);
+	constant M:	natural;
+	signal X:	out std_Logic;
+	signal W:	out std_Logic_Vector(1 DOWNTO 0)
 	) is begin
 	
 		X <= V(M); -- Output the bit value
 		W <= STD_LOGIC_VECTOR(TO_UNSIGNED(M, 2));
 
-end procedure;
+ end procedure;
 
 end entity;
 
 --! @brief Architure definition of the 4-bit Priority Encoder (PE4)
---! @details The address output holds previous value untill it changes.
---!				Otherwise it would require an extra bit.
-Architecture logic of PE4 is
+--! has two valid design options and one invalid.
+--! It is probably most straight-forward way to use std_match().
+--!
+--! @note
+--!  The address output holds previous value untill it changes.
+--! Otherwise it would require an extra bit.
+--! 
+--! @note
+--!  It cannot be edge-triggered, so only level triggering is implemented.
+--! Using rising_edge() for each if-brach causes multiple clock problem.
+
+ Architecture logic of PE4 is
 
   SIGNAL W: std_Logic_Vector ( 1 DOWNTO 0 ); --! Internal Address Bus
   SIGNAL Q: std_Logic; --! Internal Output Bus
 
-begin
+ begin
 
-  PROCESS ( V ) begin
-  
-  -- It cannot be edge-triggered,
-  -- so only level triggering is implemented.
-  -- Using rising_edge() for each brach causes
-  -- multiple clock problem.
-  -- This is probably most straight-forward way.
-     
+logic1: if dopt_logic1 generate
+PROCESS ( V ) begin
+
 	If ( V(0) = '1' ) then		-- std_match(V, "---1");
 		maskf(V, 0, Q, W);
 		
@@ -72,25 +95,13 @@ begin
 	Else Q <= '0';
 	end if;
 
+end process;
+end generate; -- dopt=1
 
-  end process;
-
-  A <= W;
-  X <= Q;
-
-end architecture;
-
---! @brief A very similar alternative design
---! 		using std_match() function.
-
-Architecture alternative_logic of PE4 is
-
-  SIGNAL W: std_Logic_Vector ( 1 DOWNTO 0 ); --! Internal Address Bus
-  SIGNAL Q: std_Logic; --! Internal Output Bus
-  
-begin
-
-  PROCESS ( V ) begin
+logic2: if dopt_logic2 generate
+-- A very similar alternativedesign
+-- using std_match() function.
+PROCESS ( V ) begin
 
     If ( std_match(V, "---1") ) then
 	maskf (V, 0, Q, W);
@@ -108,52 +119,43 @@ begin
 
     end if;
 
-  end process;
+end process;
+end generate; -- dopt=2
 
-  A <= W;
-  X <= Q;
+invalid: if dopt_invalid generate
+-- This is not going to work,
+-- because that's something that
+-- by definition never occurs!
+PROCESS ( V ) begin
 
+      case V is
+ 	
+ 	when "---1" =>
+ 		Q <= V(0);
+ 	   W <= "00";
+ 	
+ 	when "--10" =>
+ 		Q <= V(1);
+ 	   W <= "01";
+ 	
+ 	when "-100" =>
+ 		Q <= V(2);
+ 	   W <= "10";
+ 	
+ 	when "1000" =>
+ 		Q <= V(3);
+ 	   W <= "11";
+ 	
+ 	when others =>
+ 		Q <= '0';
+ 	   W <= "XX";
+ 	
+     end case;
+ 
+end process;	
+end generate; -- dopt=3
+
+   A <= W;
+   X <= Q;
+ 
 end architecture;
-
--- --! @brief This is not going to work,
--- --! because that's something that
--- --! by definition never occurs!
--- Architecture invalid of PE4 is
--- 
---   SIGNAL W: std_Logic_Vector ( 1 DOWNTO 0 ); --! Internal Address Bus
---   SIGNAL Q: std_Logic; --! Internal Output Bus
--- 
--- begin
--- 
---   PROCESS ( V ) begin
--- 
---      case V is
--- 	
--- 	when "---1" =>
--- 		Q <= V(0);
--- 	   W <= "00";
--- 	
--- 	when "--10" =>
--- 		Q <= V(1);
--- 	   W <= "01";
--- 	
--- 	when "-100" =>
--- 		Q <= V(2);
--- 	   W <= "10";
--- 	
--- 	when "1000" =>
--- 		Q <= V(3);
--- 	   W <= "11";
--- 	
--- 	when others =>
--- 		Q <= '0';
--- 	   W <= "XX";
--- 	
---     end case;
--- 	
---   end process;
--- 	
---   A <= W;
---   X <= Q;
--- 
--- end architecture; -- invalid
