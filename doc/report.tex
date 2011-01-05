@@ -38,8 +38,7 @@ title=\lstcaption,
 \begin{document}
 \maketitle
 
-\foreword
-%\chapter{Introduction}
+\section*{Introduction}
 
  The task of this homework was to learn
  VHDL design and verification by example.
@@ -57,8 +56,21 @@ title=\lstcaption,
  applied. The \emph{ModelSIM} test waveforms
  were generated using either GUI or Tcl scripts.
 
- The fallowing 
+ The fallowing two chapters are describing
+ the implementation for each of the design
+ units, fallowed by source code listing\footnote{
+ The comments were removed, since all the
+ information is provided in the text. The
+ source code can be also viewed and downloaded
+ from online repository at the fallowing URL: \\
+ \emph{\texttt{https://github.com/errordeveloper/vhdl-misc-ct3032n/}}}
+ and simulation results.
 
+ Most of the entities are using standard
+ logic library (\texttt{IEEE.STD\_LOGIC\_1164}),
+ unless specified.
+
+\tableofcontents
 
 \chapter{Design Units: Combinational Logic}
 
@@ -66,10 +78,42 @@ title=\lstcaption,
 
 \subsection{Description}
 
+ Comparator is a generic logic circuit that
+ has two input ports and three single-bit
+ outputs. Only one of each of the outputs
+ may be asserted high at any given time.
+ This design entity has two 4-bit inputs
+ ($A$ \& $B$). When $A < B$, output $L$
+ is high; when $A = B$ then $E$ is high;
+ $A > B$ then $G$ is high.
+
+ Behavioural VHDL implementation of this
+ uses \emph{if-elsif} conditions. Currently
+ it will only work for unsigned numbers
+ of arbitrary bit-width.
+
+\subsection{Verification}
+
+
+ %\begin{wrapfigure}{r}{1\textwidth}
+ \begin{figure}[h!]
+ \includegraphics[scale=0.37,angle=-90]{graphs/COMP4_simulation.ps}
+ \caption{\small{Simulation output with counter sequences applied
+ to 4-bit inputs}}
+ \end{figure}
+
 \lstinputlisting[label=code:comp4,
 caption={\emph{Behavioural Implementation of 4-bit Comparator}}]
-{../code/comblogic/comparitor_4bit.nc.vhd}
+{../code/comblogic/comparator_4bit.listing.vhd}
 
+\pagebreak
+\section{Arithmetic Logic Unit}
+\subsection{Description}
+\subsection{Verification}
+
+\pagebreak
+\section{Priority Encoder}
+\subsection{Description}
 \subsection{Verification}
 
 \chapter{Design Units: Multifunctional Logic}
