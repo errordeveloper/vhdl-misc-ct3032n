@@ -1,0 +1,87 @@
+\documentclass[10pt,a4paper]{report}
+
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[utf8x]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{MnSymbol}
+\usepackage[electronic]{ifsym}
+\usepackage{listings}
+
+\lstset{ %
+%%% deletecomment=[l]--!,
+language=VHDL,
+%basicstyle=\footnotesize,
+%numbers=left,
+%numberstyle=\footnotesize,
+%stepnumber=2,
+numbersep=5pt,
+%backgroundcolor=\color{white},
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+frame=single,
+%tabsize=2,
+captionpos=b,
+breaklines=true,
+breakatwhitespace=false,
+title=\lstcaption,
+%commentstyle=\color{blue},
+}
+
+\author{Ilya Dmitrichenko}
+\title{Introduction VHDL \\ Case Study}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\foreword
+%\chapter{Introduction}
+
+ The task of this homework was to learn
+ VHDL design and verification by example.
+ A selection standard digital circuits
+ has been provided, of which a number
+ of combinational and multifunction
+ entities were implemented.
+
+ Code verification and simulation were
+ performed using \emph{Altera Quartus II}
+ software suite with \emph{Mentor Graphics
+ ModelSIM (AE 6.5)} simulator.
+ Only basic RTL simulation had been
+ carried out, without any timing constraints
+ applied. The \emph{ModelSIM} test waveforms
+ were generated using either GUI or Tcl scripts.
+
+ The fallowing 
+
+
+\chapter{Design Units: Combinational Logic}
+
+\section{Comparator}
+
+\subsection{Description}
+
+\lstinputlisting[label=code:comp4,
+caption={\emph{Behavioural Implementation of 4-bit Comparator}}]
+{../code/comblogic/comparitor_4bit.nc.vhd}
+
+\subsection{Verification}
+
+\chapter{Design Units: Multifunctional Logic}
+
+\section{ENTITY}
+
+\subsection{Description}
+
+%\lstinputlisting[label=code:comp4,
+%caption={\emph{Behavioural Implementation of 4-bit Comparator}}]
+%{../code/comblogic/comparitor_4bit.nc.vhd}
+
+\subsection{Verification}
+
+\end{document}
