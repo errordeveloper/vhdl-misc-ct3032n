@@ -1,79 +1,73 @@
-LIBRARY ieee;
-    USE ieee.std_logic_1164.all;
-    USE ieee.numeric_std.all;
-    USE ieee.std_logic_signed.all;
+Library IEEE;
+    use IEEE.STD_LOGIC_1164.all;
+    use IEEE.NUMERIC_STD.all;
+    use IEEE.STD_LOGIC_SIGNED.all;
 	 
-ENTITY ALU_vhd_tst IS
+Entity ALU_tb IS
   
-  procedure c(
-  
-    constant i: integer;
-    signal s: out std_Logic_Vector(3 DOWNTO 0) ) is
-  
+  procedure c ( constant i: integer;
+                signal s: out std_Logic_Vector(3 DOWNTO 0) ) is
   begin
-          
+
           s <= STD_LOGIC_VECTOR( TO_SIGNED( i, 4 ) ) ;
-          
+
 end procedure;
 
 
-END ALU_vhd_tst;
+end ALU_tb;
 
-ARCHITECTURE ALU_arch OF ALU_vhd_tst IS
+Architecture ALU_test OF ALU_tb IS
 
-  SIGNAL A : STD_LOGIC_VECTOR(3 DOWNTO 0);
-  SIGNAL B : STD_LOGIC_VECTOR(3 DOWNTO 0);
-  SIGNAL I : STD_LOGIC_VECTOR(3 DOWNTO 0);
-  SIGNAL X : STD_LOGIC_VECTOR(3 DOWNTO 0);
+  signal A : std_Logic_Vector(3 DOWNTO 0);
+  signal B : std_Logic_Vector(3 DOWNTO 0);
+  signal I : std_Logic_Vector(3 DOWNTO 0);
+  signal X : std_Logic_Vector(3 DOWNTO 0);
 
-COMPONENT ALU
-  PORT (
-	A : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-	B : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-	I : IN STD_LOGIC_VECTOR(3 DOWNTO 0);
-	X : OUT STD_LOGIC_VECTOR(3 DOWNTO 0)
-	);
-END COMPONENT;
+ Component ALU
+  PORT (A : IN std_Logic_Vector(3 DOWNTO 0);
+	B : IN std_Logic_Vector(3 DOWNTO 0);
+	I : IN std_Logic_Vector(3 DOWNTO 0);
+	X : OUT std_Logic_Vector(3 DOWNTO 0));
+ end component;
 
-BEGIN
-	i1 : ALU
-PORT MAP (
-	A => A,
-	B => B,
-	I => I,
-	X => X
-	);
+begin
+
+i1 : ALU Port
+map (A => A,
+     B => B,
+     I => I,
+     X => X);
 
   init : PROCESS
   -- variable declarations                                     
-  BEGIN
+  begin
         -- code that executes only once
 		  
-		  I <= X"0";
+  I <= X"0";
+  
+  
+  c(2, A);
+  c(3, B);
+  
+  wait for 100 ns;
 		  
+  c(1, A);
+  c(-2, B);
 		  
-		  c(2, A);
-		  c(3, B);
-		  
-		  wait for 100 ns;
-		  
-		  c(1, A);
-		  c(-2, B);
-		  
-		  wait for 100 ns;
+  wait for 100 ns;
 		  
   WAIT;
   
-  END PROCESS init;
+  end process init;
 
   always : PROCESS
   -- optional sensitivity list
   -- (        )
   -- variable declarations
-  BEGIN
+  begin
         -- code executes for every event on sensitivity list
   WAIT;
   
-  END PROCESS always;
+  end process always;
 
-END ALU_arch;
+end ALU_arch;
