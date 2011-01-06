@@ -21,11 +21,11 @@ Library IEEE;
 --! then other inputs are ignored.
 --! If input A is quite, then input B is checked,
 --! the last input (N) will be output only when
---! N-1 and all other inpust are quite.
---! Priority Encoders are offten used
+--! N-1 and all other inputs are quite.
+--! Priority Encoders are often used
 --! to connect many inputs to one external
 --! interrupt pin of a microcontroller.
---! Priority encoder also ouputs the address
+--! Priority encoder also outputs the address
 --! of currently active input pin.
 Entity PE4 is
 
@@ -63,7 +63,7 @@ end entity;
 --! It is probably most straight-forward way to use std_match().
 --!
 --! @note
---!  The address output holds previous value untill it changes.
+--!  The address output holds previous value until it changes.
 --! Otherwise it would require an extra bit.
 --! 
 --! @note
@@ -99,7 +99,7 @@ end process;
 end generate; -- dopt=1
 
 logic2: if dopt_logic2 generate
--- A very similar alternativedesign
+-- A very similar alternative design
 -- using std_match() function.
 PROCESS ( V ) begin
 

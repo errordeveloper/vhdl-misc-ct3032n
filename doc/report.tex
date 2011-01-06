@@ -9,6 +9,7 @@
 \usepackage{MnSymbol}
 \usepackage[electronic]{ifsym}
 \usepackage{listings}
+%\usepackage{marvosym}
 
 \lstset{ %
 %%% deletecomment=[l]--!,
@@ -32,13 +33,13 @@ title=\lstcaption,
 }
 
 \author{Ilya Dmitrichenko}
-\title{Introduction VHDL \\ Case Study}
+\title{Introduction to VHDL \\ Case Study}
 \date{\today}
 
 \begin{document}
 \maketitle
 
-\section*{Introduction}
+\section*{Preface}
 
  The task of this homework was to learn
  VHDL design and verification by example.
@@ -68,9 +69,10 @@ title=\lstcaption,
 
  Most of the entities are using standard
  logic library (\texttt{IEEE.STD\_LOGIC\_1164}),
- unless specified.
+ unless explicitly specified.
 
 \tableofcontents
+\listoffigures
 
 \chapter{Design Units: Combinational Logic}
 
@@ -88,7 +90,7 @@ title=\lstcaption,
  $A > B$ then $G$ is high.
 
  Behavioural VHDL implementation of this
- uses \emph{if-elsif} conditions. Currently
+ uses \texttt{if-elsif} conditions. Currently
  it will only work for unsigned numbers
  of arbitrary bit-width.
 
@@ -97,9 +99,10 @@ title=\lstcaption,
 
  %\begin{wrapfigure}{r}{1\textwidth}
  \begin{figure}[h!]
+ \center
  \includegraphics[scale=0.37,angle=-90]{graphs/COMP4_simulation.ps}
  \caption{\small{Simulation output with counter sequences applied
- to 4-bit inputs}}
+ to 4-bit comparator}} \label{wave:comp4}
  \end{figure}
 
 \lstinputlisting[label=code:comp4,
@@ -107,24 +110,168 @@ caption={\emph{Behavioural Implementation of 4-bit Comparator}}]
 {../code/comblogic/comparator_4bit.listing.vhd}
 
 \pagebreak
-\section{Arithmetic Logic Unit}
-\subsection{Description}
-\subsection{Verification}
-
-\pagebreak
 \section{Priority Encoder}
 \subsection{Description}
+
+ Priority Encoder (PE) is a generic combinational
+ circuit that is most commonly used to attach
+ several inputs to one external interrupt pin of
+ a microcontroller. Taking a number of lines, it
+ outputs only one input value based on priority.
+ If there is an event at input $V(0)$, then other
+ lines are ignored. If line $V(0)$ is quite,
+ then input $V(1)$ is checked, the last line
+ $V(n)$ will be output only when $V(n-1)$ and all
+ other lines are quite.
+
+ PE also has an output for the address of currently
+ active line. This design entity has four input
+ lines, and uses 2-bit addressing. Note that the
+ address of previously active line will be held
+ until it changes, otherwise an extra bit would
+ be needed to implement addressing of inactivity.
+ A procedure \emph{\texttt{maskf()}} had been
+ coded to facilitate addressing using casting
+ from integer argument to logic vector.
+ This procedure takes vector $V$, masks one bit
+ $M$ and outputs $V(M)$ to the bit vector bus $X$,
+ writing the binary value of masking bit $M$ to the
+ address vector bus $W$. The event condition checking
+ has to be done prior the procedure call.
+
+
 \subsection{Verification}
+
+ The code in listing \ref{code:pe4} demonstrates
+ two valid design options and one invalid.
+
+ This VHDL design uses \texttt{generate} conditions
+ depending on value of \texttt{generic} variables,
+ alternatively multiple architectures could be
+ coded, but that would take more lines of code.
+ The invalid version uses \emph{"don't care"}
+ \texttt{case} branching, though this approach
+ cannot be synthesised.
+ Two very similar alternatives are shown in
+ the listing (\ref{code:pe4}).
+ It is probably most straight-forward way to
+ use \emph{\texttt{std\_match()}} function from
+ \texttt{IEEE.NUMERIC\_STD} library.
+ 
+ Only level-triggering is implemented, since
+ use of several \emph{\texttt{rising\_edge()}}
+ conditions introduces multiple clocking issues,
+ which are hard to overcome.
+
+ The simulation output is shown in figure \ref{wave:pe4}.
+ 
+ \begin{figure}[h!]
+ \center
+ \includegraphics[scale=0.3495,angle=-90]{graphs/priority_encoder_4bit.ps}
+ \caption{\small{Random stimulus applied to inputs lines of 4-bit PE}} \label{wave:pe4}
+ \end{figure}
+
+\lstinputlisting[label=code:pe4,
+caption={\emph{Behavioural Implementation of 4-bit PE}}]
+{../code/comblogic/priority_encoder_4bit.listing.vhd}
+
+\pagebreak
+\section{Arithmetic Logic Unit}
+\subsection{Description}
+
+ Arithmetic Logic Units (ALUs) are some of
+ the most common building block in any
+ processor architecture.
+
+ This design entity has three 4-bit inputs
+ ($A$ \& $B$), operation instruction input
+ ($I$) and result output ($X$). This is a
+ combinational logic circuit and does not
+ require a clock.
+
+ Please note, the carry bits are ignored\footnote{
+ Carry bit can be implemented by adding an extra
+ 1-bit vector input \texttt{(0 DOWNTO 0)} and by
+ summing two 4-bit vectors with 3rd 1-bit vector
+ the VHDL synthesis tool is expected to recognise
+ it as the carry input. For simplicity of the
+ design, this had been omitted.}.
+ \emph{Multiplication} and \emph{division} are not
+ yet implemented\footnote{\emph{Multiplication} needs
+ 8-bit vector to output the product and \emph{division}
+ implies conversion to floating point or integer
+ approximation.}, but instructions \texttt{0x2} and
+ \texttt{0x3} had been reserved. All logic operations
+ (except \emph{inversion}\footnote{\emph{Inversion}
+ operates on one input only.}) were implemented.
+
+ Below is the list of instructions for this ALU.
+ \begin{itemize}
+ \item \texttt{Arithmetic:}
+ \begin{description}
+ \item \texttt{0x0} \emph{addition}
+ \item \texttt{0x1} \emph{subtraction}
+ \end{description}
+ \item \texttt{Logic:}
+ \begin{description}
+ \item \texttt{0x5} \emph{OR}
+ \item \texttt{0x6} \emph{XOR}
+ \item \texttt{0x7} \emph{XNOR}
+ \item \texttt{0x8} \emph{NOR}
+ \item \texttt{0x9} \emph{AND}
+ \item \texttt{0xA} \emph{NAND}
+ \end{description}
+ \end{itemize}
+
+ In addition to \texttt{IEEE.STD\_LOGIC\_1164},
+ this entity  requires fallowing libraries:
+ \begin{itemize}
+ \item \texttt{IEEE.STD\_LOGIC\_ARITH}
+ for arithmetic operations
+ \item \texttt{IEEE.STD\_LOGIC\_SIGNED}
+ for operations with unsigned integers
+ \end{itemize}
+
+\subsection{Verification}
+
+ The code in lisling \ref{code:alu} had been synthesised
+ using and the Register Transfer Level (RTL) circuit is
+ shown in figure \ref{rtl:alu}.
+ To verify correct operation of this design, a stimulus
+ needs to be generated. Applying a count sequence may
+ appear to be appropriate, though it would produce
+ numerous waveform figures. Though a random wave may
+ be used, it would make results harder to read on paper.
+
+ See figure \ref{wave:alu} for the output waveforms.
+
+\begin{figure}
+\includegraphics[scale=0.7]{graphs/alu_4bit.rtl.ps}
+\caption{\small{RTL circuit diagram for ALU}} \label{rtl:alu}
+\end{figure}
+\pagebreak
+
+\lstinputlisting[label=code:alu,
+caption={\emph{Behavioural Implementation of 4-bit ALU}}]
+{../code/comblogic/alu_4bit.listing.vhd}
+
 
 \chapter{Design Units: Multifunctional Logic}
 
 \section{ENTITY}
-
 \subsection{Description}
 
-%\lstinputlisting[label=code:comp4,
-%caption={\emph{Behavioural Implementation of 4-bit Comparator}}]
-%{../code/comblogic/comparitor_4bit.nc.vhd}
+\subsection{Verification}
+
+\pagebreak
+\section{ENTITY}
+\subsection{Description}
+
+\subsection{Verification}
+
+\pagebreak
+\section{ENTITY}
+\subsection{Description}
 
 \subsection{Verification}
 

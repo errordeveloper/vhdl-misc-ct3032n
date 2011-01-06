@@ -1,5 +1,5 @@
 
-library IEEE;
+Library IEEE;
     use IEEE.STD_LOGIC_1164.all;
 
 Entity COMP4 is

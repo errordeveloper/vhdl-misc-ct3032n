@@ -8,7 +8,7 @@ library IEEE;
 --! Use logic elements
     use IEEE.STD_LOGIC_1164.all;
 --! Use numeric
-	 use IEEE.NUMERIC_STD.all;
+--	 use IEEE.NUMERIC_STD.all;
 --! Use arichmetics
 	 use IEEE.STD_LOGIC_ARITH.all;
 --! Use unsigned integers
@@ -20,7 +20,7 @@ library IEEE;
 
 --! ALU - Arithmetic Logic Unit
 Entity ALU is
-  Port (
+  PORT (
         A: in  std_Logic_Vector ( 3 DOWNTO 0 ); --! First input
         B: in  std_Logic_Vector ( 3 DOWNTO 0 ); --! Second input
         I: in  std_Logic_Vector ( 3 DOWNTO 0 ); --! Operation instruction input
@@ -32,15 +32,15 @@ end entity;
 --! @details More details about this element.
 --! @note Please note, the carry bits are ignored.
 --! Multiplication and Division are not yet
---! implemented but instructions 0x2 and 0x3
+--! implemented, but instructions 0x2 and 0x3
 --! had been reserved. Multiplication needs
 --! 8-bit vector to output the product
 --! and Division implies conversion to
 --! floating point or integer approximation.
-Architecture behavior of ALU is
+Architecture Behavioral of ALU is
 begin
 
-  process ( A, B, I)
+  alu: PROCESS ( A, B, I)
   --! Check instructions using 'case' statement.
   begin
 --! This desing of 4-bit ALU
