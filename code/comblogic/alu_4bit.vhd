@@ -57,17 +57,17 @@ begin
 --	when "0011" => X <= (A / B);
 
 --! LOGIC -
---! OR (0x5),
+--! OR (0x4),
 	when "0100" => X <= ( A OR B );
---! XOR (0x6),
+--! XOR (0x5),
 	when "0101" => X <= ( A XOR B );
---! XNOR (0x7),
+--! XNOR (0x6),
 	when "0110" => X <= ( A XNOR B );
---! NOR (0x8),
+--! NOR (0x7),
 	when "0111" => X <= ( A NOR B );
---! AND (0x9),
+--! AND (0x8),
 	when "1000" => X <= ( A AND B );
---! NAND (0xA) and
+--! NAND (0x9) and
 	when "1001" => X <= ( A NAND B );
 --! Legacy Unknown.
 	when others => X <= "XXXX";

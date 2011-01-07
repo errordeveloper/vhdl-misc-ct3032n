@@ -11,6 +11,8 @@
 \usepackage{listings}
 %\usepackage{marvosym}
 
+\usepackage{url}
+
 \lstset{ %
 %%% deletecomment=[l]--!,
 language=VHDL,
@@ -214,12 +216,12 @@ caption={\emph{Behavioural Implementation of 4-bit PE}}]
  \end{description}
  \item \texttt{Logic:}
  \begin{description}
- \item \texttt{0x5} \emph{OR}
- \item \texttt{0x6} \emph{XOR}
- \item \texttt{0x7} \emph{XNOR}
- \item \texttt{0x8} \emph{NOR}
- \item \texttt{0x9} \emph{AND}
- \item \texttt{0xA} \emph{NAND}
+ \item \texttt{0x4} \emph{OR}
+ \item \texttt{0x5} \emph{XOR}
+ \item \texttt{0x6} \emph{XNOR}
+ \item \texttt{0x7} \emph{NOR}
+ \item \texttt{0x8} \emph{AND}
+ \item \texttt{0x9} \emph{NAND}
  \end{description}
  \end{itemize}
 
@@ -243,7 +245,55 @@ caption={\emph{Behavioural Implementation of 4-bit PE}}]
  numerous waveform figures. Though a random wave may
  be used, it would make results harder to read on paper.
 
- See figure \ref{wave:alu} for the output waveforms.
+ A VHDL testbench had been generated and edited for the
+ ALU simulation\footnote{The testbench code is too long
+ to be included in the report, it can be viewed at the
+ fallowing URL: \emph{\texttt{
+\url{https://github.com/errordeveloper/vhdl-misc-ct3032n/blob/master/code/comblogic/alu_4bit.vht}}}
+%\\ The Tcl script for \emph{ModelSim} is located at:\\
+%\url{https://github.com/errordeveloper/vhdl-misc-ct3032n/blob/master/code/comblogic/alu_4bit.do.tcl}\\
+}.
+
+ See figures \ref{wave:alu:t1} and \ref{wave:alu:t2}
+ for the output waveforms.
+
+\begin{figure}
+\includegraphics[scale=0.5,angle=-90]{graphs/alu_4bit_test1.ps}
+\caption{\small{Test result of arithmetic modes}} \label{wave:alu:t1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[scale=0.5,angle=-90]{graphs/alu_4bit_test2p1.ps}
+\includegraphics[scale=0.5,angle=-90]{graphs/alu_4bit_test2p2.ps}
+\caption{\small{Test result of logic operations}} \label{wave:alu:t2}
+\end{figure}
+
+
+ Figure \ref{wave:alu:t1} shows \texttt{for-loop} test
+ in \emph{addition} and \emph{subtraction} modes. The
+ overflow occurs at rather low values, proving that this
+ ALU is not operational for arithmetics with result values
+ greater then $+6$ or less then $-8$.
+
+ Waveforms in figure \ref{wave:alu:t2} show the logic
+ mode test results applying same input bit sequences.
+ The testbench used a \texttt{for-loop} to cycle through
+ the operator commands. The results were manually checked
+ and found to be correct.
+
+ \subsubsection{Conclusion}
+
+ A 4-bit ALU without a carry output is rather unusable
+ for arithmetics. This design would be useful as a building
+ block to produce 8-, 12-, 16-, 24-bit and greater width
+ units. However, there is no need for such component in VHDL,
+ since only a minor modification to the ALU code  would be
+ required to increase the capabilities. Thought, it is not
+ as simple when hardware constraints are in place, because
+ many different adder design pattern are available and the
+ decision has to be made in terms of physical area, performance
+ or power optimisation preferences made before loading the
+ circuit design into programmable devices.
 
 \begin{figure}
 \includegraphics[scale=0.7]{graphs/alu_4bit.rtl.ps}

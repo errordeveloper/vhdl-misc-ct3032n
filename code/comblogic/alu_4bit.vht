@@ -6,8 +6,9 @@ Library IEEE;
 Entity ALU_tb IS
   
   GENERIC ( -- use this for setting test type
-  test_arith: boolean := true;
-  test_logic: boolean := false
+  test_arith: boolean := false;
+  test_arith_loop: boolean := false;
+  test_logic: boolean := true
   );
 
   procedure c ( constant i: integer;
@@ -159,20 +160,82 @@ init : PROCESS
   wait for 30 ns;
 
 		  
-  WAIT;
-  
-  end process init;
-  end generate;
+  WAIT; end process init; end generate;
+
+
+arith2: if test_arith_loop generate
+init : PROCESS
+  -- variable declarations                                     
+  begin
+	-- code that executes only once
+
+  I <= X"0"; -- test for addition
+
+  for N in 0 TO 10 loop
+
+    c(N, A);
+    c(N-4, B);
+
+    wait for 30 ns;
+
+  end loop;
+
+  I <= X"1"; -- test for subtraction
+
+  for N in 8 DOWNTO -12 loop
+
+    c(N+N+3, A);
+    c(N, B);
+
+    wait for 30 ns;
+
+  end loop;
+
+  WAIT; end process init; end generate;
+
 
 logic: if test_logic generate
 init : PROCESS
   -- variable declarations                                     
   begin
         -- code that executes only once
+  
+  for N in 4 TO 9 loop
+
+  c(N, I);
+
+    A <= "0101";
+    B <= "0101";
+    wait for 30 ns;
+
+    A <= "0000";
+    B <= "1101";
+    wait for 30 ns;
+
+    B <= "1000";
+    wait for 30 ns;
+
+    A <= "1111";
+    B <= "0000";
+    wait for 30 ns;
+
+    A <= "1010";
+    B <= "0101";
+    wait for 30 ns;
+
+    A <= "1101";
+    B <= "1110";
+    wait for 30 ns;
+
+  end loop;
+
+
+  I <= X"9"; -- AND
+
+  I <= X"A"; -- NAND
 		
 
-  end process init;
-  end generate;
+  WAIT; end process init; end generate;
 
 
   always : PROCESS
