@@ -137,7 +137,6 @@ init : PROCESS
 
   wait for 30 ns;
 
-
   I <= X"0";
 
   c(-7, A);
@@ -149,6 +148,16 @@ init : PROCESS
   c(-7, B);
 		  
   wait for 30 ns;
+
+  ---- positive overflow tests
+
+  I <= X"0";
+
+  c(5, A);
+  c(5, B);
+
+  wait for 30 ns;
+
 		  
   WAIT;
   
