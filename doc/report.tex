@@ -313,19 +313,47 @@ caption={\emph{Behavioural Implementation of 4-bit ALU}}]
 \section{Register}
 \subsection{Description}
 
+ Figure \ref{block:reg4} shows a block diagram with
+ inputs and outputs of the register. \\ The opcodes for
+ \texttt{Control} inputs are as fallows:
+
+ \begin{tabular}{|c|c|l l|}
+ \hline
+ \texttt{Enable} & \texttt{Control}  & \emph{Command} & \emph{Function} \\
+ \hline
+
+ \texttt{0} & \texttt{XX} & \emph{HOLD} & $Q^{n+1} = Q^n$ \\
+
+ \texttt{1} & \texttt{00} & \emph{CLEAR} & $Q^{n+1} = 0$ \\
+
+ \texttt{1} & \texttt{11} & \emph{LOAD} & $Q^{n+1} = D^n$ \\
+
+ \texttt{1} & \texttt{01} & \emph{OR BITS} & $Q^{n+1} = Q^n \cdot D^n$ \\
+
+ \texttt{1} & \texttt{10} & \emph{AND BITS} & $Q^{n+1} = Q^n \oplus D^n$ \\
+
+ \hline
+
+ \end{tabular}
+
+\begin{figure}
+\center
+\includegraphics[scale=0.75,angle=-90]{graphs/reg_4bit.eps}
+\caption{\small{Multifunctional register block diagram}} \label{block:reg4}
+\end{figure}
+
 \subsection{Verification}
 
  To simulate the register behaviour a simple testbench
  had been coded. The waveform in figure \ref{wave:reg4}
  demonstrates that changes in the output occur synchronously
- and the operation of this model is corresponds to given
+ and the operation of this model does correspond to the given
  specification. 
  For example, the output doesn't clear until \texttt{Enable}
  input goes \emph{\texttt{high}} disregarding the state of
  \texttt{Control} input, also the output transaction doesn't
  occur until the rising edge of the \texttt{Clock} signal.
  Logic operations are also correct and synchronous.
-
  The RTL diagram (figure \ref{rtl:reg4}) appears to be
  very linear, nevertheless during HDL design of this model
  there had been a few errors made when the RTL viewer
