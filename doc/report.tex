@@ -57,7 +57,9 @@ title=\lstcaption,
  Only basic RTL simulation had been
  carried out, without any timing constraints
  applied. The \emph{ModelSIM} test waveforms
- were generated using either GUI or Tcl scripts.
+ were generated using either GUI or Tcl scripts,
+ VHDL testbenches were designed for some of
+ the entities.
 
  The fallowing two chapters are describing
  the implementation for each of the design
@@ -308,10 +310,42 @@ caption={\emph{Behavioural Implementation of 4-bit ALU}}]
 
 \chapter{Design Units: Multifunctional Logic}
 
-\section{ENTITY}
+\section{Register}
 \subsection{Description}
 
 \subsection{Verification}
+
+ To simulate the register behaviour a simple testbench
+ had been coded. The waveform in figure \ref{wave:reg4}
+ demonstrates that changes in the output occur synchronously
+ and the operation of this model is corresponds to given
+ specification. 
+ For example, the output doesn't clear until \texttt{Enable}
+ input goes \emph{\texttt{high}} disregarding the state of
+ \texttt{Control} input, also the output transaction doesn't
+ occur until the rising edge of the \texttt{Clock} signal.
+ Logic operations are also correct and synchronous.
+
+ The RTL diagram (figure \ref{rtl:reg4}) appears to be
+ very linear, nevertheless during HDL design of this model
+ there had been a few errors made when the RTL viewer
+ came in handy.
+
+\begin{figure}
+\includegraphics[scale=0.7,angle=-90]{graphs/reg_4bit.rtl.eps}
+\caption{\small{Multifunctional register RTL circuit diagram}} \label{rtl:reg4}
+\end{figure}
+
+\begin{figure}
+\center
+\includegraphics[scale=0.4,angle=-90]{graphs/reg_4bit_test.ps}
+\caption{\small{Multifunctional register simulation}} \label{wave:reg4}
+\end{figure}
+
+\pagebreak
+\lstinputlisting[label=code:reg4,
+caption={\emph{Behavioural Implementation of 4-bit register (brief)}}]
+{../code/multifunc/reg_4bit.listing.vhd}
 
 \pagebreak
 \section{ENTITY}
