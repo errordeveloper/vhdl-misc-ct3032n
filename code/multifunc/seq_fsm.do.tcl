@@ -1,3 +1,19 @@
+transcript on
+if ![file isdirectory vhdl_libs] {
+	file mkdir vhdl_libs
+}
+
+if {[file exists rtl_work]} {
+	vdel -lib rtl_work -all
+}
+
+vlib rtl_work
+vmap work rtl_work
+
+vcom -93 -work work {/home/110101/uni/ct3032n/vhdl/ast_2.git/code/multifunc/seq_fsm.vhd}
+
+vsim -voptargs=+acc work.seq
+
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -expand -group Lines -format Logic -label Data /seq/data
@@ -28,3 +44,5 @@ force -freeze sim:/seq/reset 0 0
 force -freeze sim:/seq/data 1 0
 update
 WaveRestoreZoom {0 ns} {900 ns}
+
+source procs.do
