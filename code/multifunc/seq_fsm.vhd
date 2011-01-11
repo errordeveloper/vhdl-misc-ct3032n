@@ -4,9 +4,9 @@ Library IEEE;
 
 Entity SEQ is
 
-GENERIC ( constant dopt_invalid: boolean := true;
-	  constant dopt_buffered: boolean := false;
-	  constant L: natural := 3 ;
+GENERIC ( constant dopt_invalid: boolean := false;
+	  constant dopt_buffered: boolean := true;
+	  constant L: natural := 4 ;
 	  constant X: std_Logic_Vector(3 DOWNTO 0) := "0011" );
 
 PORT ( Data: in std_Logic;
@@ -128,14 +128,9 @@ case state_reg is
 
     end if;
  
-  elsif ( ( N > 0 ) AND ( data_sig = X(N-1) ) ) then
-
-    N := N-1;
-    state_next <= read;
-
   else
 
-    -- N := 0;
+    N := 0;
     state_next <= read;
 
   end if;
