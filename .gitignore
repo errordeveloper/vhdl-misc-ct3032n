@@ -11,3 +11,4 @@ code/projects/
 *.cf
 *.ini
 code/multifunc/74-series/generated/db/
+*.ps~.gz
