@@ -6,8 +6,8 @@ Entity SEQ is
 
 GENERIC ( constant dopt_invalid: boolean := false;
 	  constant dopt_buffered: boolean := true;
-	  constant L: natural := 4 ;
-	  constant X: std_Logic_Vector(3 DOWNTO 0) := "0011" );
+	  constant L: natural := 9 ;
+	  constant X: std_Logic_Vector(8 DOWNTO 0) := "010110011" );
 
 PORT ( Data: in std_Logic;
        Flag: out std_Logic;
@@ -35,6 +35,9 @@ events: PROCESS ( Clock, Reset ) begin
   If ( Reset = '1' ) then
 
     state_reg <= zero;
+    --state_reg <= read;
+
+    data_buf <= ( others => '0' );
 
   elsif ( rising_edge(Clock) ) then
 
@@ -50,13 +53,9 @@ states: PROCESS ( data_buf, state_reg ) begin
 
  case state_reg is
 
-  when zero =>
+  when read =>
 
    Flag <= '0';
-
-   state_next <= read;
-
-  when read =>
 
    if ( std_match( data_buf, X ) ) then
 
@@ -72,11 +71,17 @@ states: PROCESS ( data_buf, state_reg ) begin
 
    Flag <= '1';
 
-   state_next <= zero;
+   state_next <= read;
+
+  when zero =>
+
+   Flag <= '0';
+
+   state_next <= read;
 
   when others =>
 
-   state_next <= zero;
+   state_next <= read;
 
  end case;
 

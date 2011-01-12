@@ -13,6 +13,10 @@
 
 \usepackage{url}
 
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning,shapes}
+\usepackage{pstricks-add}
+
 \lstset{ %
 %%% deletecomment=[l]--!,
 language=VHDL,
@@ -453,6 +457,26 @@ caption={\emph{Behavioural implementation of 8-bit counter (brief)}}]
 
 \subsubsection{Algorithm Considerations}
 
+ \begin{figure}
+ \caption{FSM of Universal Sequence Detector} \label{fsm:usd}
+ \vspace*{0.5cm}
+ \begin{tikzpicture}[>=latex, shorten >=1pt, node distance=1in,
+ 	on grid, auto, initial text=\fbox{\texttt{\emph{Reset}}}]
+
+ \node[state, initial]	(zero)			{\texttt{"ZERO"}};
+ \node[state]		(read) [right=of zero]	{\texttt{"READ"}};
+ \node[state]		(done) [right=of read, label=0:{\fbox{\texttt{\emph{Flag}}$\updownarrows$}}]	{\texttt{"DONE"}};
+
+ \path[->]
+ 	   (zero) edge node {} (read)
+	   (read) edge [loop below] node {0} (read)
+	   (read) edge [bend left] node[swap] {1} (done)
+	   (done) edge [bend left] node[swap] {} (read);
+
+ \end{tikzpicture}
+ \end{figure}
+
+
  Firstly it would be appropriate to contrast the
  VHDL design pattern with more classic programming.
  Below is a basic implementation for an equivalent
@@ -493,5 +517,48 @@ caption={\emph{Brief algorithm prototype of sequence detector in C}}]
  detected will be loaded as an input).
 
 \subsection{Verification}
+
+\pagebreak
+\lstinputlisting[label=code:usd,
+caption={\emph{FSMD implementation of Universal Sequence Detector}}]
+{../code/multifunc/seq_fsm.listing.vhd}
+
+\begin{figure} \center
+
+\includegraphics[scale=0.6,angle=-90]{graphs/seq_test1.rtl_BASIC4.eps}
+\caption{\small{RTL view: Basic USEQD design (no "zero" state, for "$0011$")}} \label{rtl:usd:1b}
+
+\includegraphics[scale=0.6,angle=-90]{graphs/seq_test1.rtl_0011.eps}
+\caption{\small{RTL view: Full USEQD using FSM with buffered data input (for "$0011$")}} \label{wave:usd:1}
+\end{figure}
+
+\begin{figure} \center
+
+\includegraphics[scale=0.49,angle=-90]{graphs/seq_test1.ps}
+\caption{\small{Detecting sequence $0011$}} \label{wave:usd:t1w1}
+
+\includegraphics[scale=0.49,angle=-90]{graphs/seq_test1.BASIC.ps}
+\caption{\small{Detecting sequence $0011$ (with basic circuit)}} \label{wave:usd:t1w2}
+\end{figure}
+
+\begin{figure} \center
+
+\includegraphics[scale=0.6,angle=-90]{graphs/seq_test1.rtl_BASIC9.eps}
+\caption{\small{RTL view: Basic 9-bit USEQD design}} \label{rtl:usd:1b}
+
+\includegraphics[scale=0.6,angle=-90]{graphs/seq_test1.rtl_010110011.eps}
+\caption{\small{RTL view: Full 9-bit USEQD using FSM with buffered data input}} \label{wave:usd:1}
+\end{figure}
+
+\begin{figure} \center
+
+\includegraphics[scale=0.49,angle=-90]{graphs/seq_test2.UNMATCHED.ps}
+\caption{\small{Detecting sequence $010110011$ (without match)}} \label{wave:usd:t2w1}
+
+\includegraphics[scale=0.49,angle=-90]{graphs/seq_test2.MATCHED.ps}
+\caption{\small{Detecting sequence $010110011$}} \label{wave:usd:t2w2}
+\end{figure}
+
+
 
 \end{document}
