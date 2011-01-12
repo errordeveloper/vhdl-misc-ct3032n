@@ -66,7 +66,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="0"
      inkscape:zoom="1.517898"
-     inkscape:cx="162.03513"
+     inkscape:cx="163.35274"
      inkscape:cy="161.59834"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -315,13 +315,13 @@
     </g>
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m -3709,-60245.121 10,0"
+       d="m -3931.3828,-63417.759 10,0"
        id="path3267"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="0" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m -3709,-60215.121 10,0"
+       d="m -3931.3828,-63387.759 10,0"
        id="path3269"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="0" />
@@ -333,7 +333,7 @@
        sodipodi:cy="304.86218"
        sodipodi:rx="2.5"
        sodipodi:ry="2.5"
-       d="m 157.5,307.36218 a 2.5,2.5 0 1 1 0.0457,-4.2e-4"
+       d="m 157.5,307.36218 c -1.38071,0 -2.5,-1.11929 -2.5,-2.5 0,-1.38071 1.11929,-2.5 2.5,-2.5 1.38071,0 2.5,1.11929 2.5,2.5 0,1.3629 -1.09163,2.47467 -2.4543,2.49958"
        sodipodi:start="1.5707963"
        sodipodi:end="7.8356988"
        sodipodi:open="true"
@@ -352,14 +352,14 @@
        sodipodi:cy="304.86218"
        sodipodi:rx="2.5"
        sodipodi:ry="2.5"
-       d="m 157.5,307.36218 a 2.5,2.5 0 1 1 0.0457,-4.2e-4"
+       d="m 157.5,307.36218 c -1.38071,0 -2.5,-1.11929 -2.5,-2.5 0,-1.38071 1.11929,-2.5 2.5,-2.5 1.38071,0 2.5,1.11929 2.5,2.5 0,1.3629 -1.09163,2.47467 -2.4543,2.49958"
        sodipodi:start="1.5707963"
        sodipodi:end="7.8356988"
        sodipodi:open="true"
        transform="matrix(0.6035714,0,0,0.6035714,-120.55357,-3296.6438)" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.9534626px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
-       d="m -465,-9457.9131 10,0"
+       d="m -687.38281,-12630.551 10,0"
        id="path4158"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="0" />
@@ -372,7 +372,7 @@
        sodipodi:nodetypes="ccc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1.04880881px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m -530,-9467.9131 -11,0"
+       d="m -752.38281,-12640.551 -11,0"
        id="path4174"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="0" />

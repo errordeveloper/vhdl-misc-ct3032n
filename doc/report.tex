@@ -49,7 +49,7 @@ title=\lstcaption,
 
  The task of this homework was to learn
  VHDL design and verification by example.
- A selection standard digital circuits
+ A selection of standard digital circuits
  has been provided, of which a number
  of combinational and multifunction
  entities were implemented.
@@ -75,9 +75,6 @@ title=\lstcaption,
  \emph{\texttt{https://github.com/errordeveloper/vhdl-misc-ct3032n/}}}
  and simulation results.
 
- Most of the entities are using standard
- logic library (\texttt{IEEE.STD\_LOGIC\_1164}),
- unless explicitly specified.
 
 \tableofcontents
 \listoffigures
@@ -455,6 +452,26 @@ caption={\emph{Behavioural implementation of 8-bit counter (brief)}}]
 \section{Universal Sequence Detector}
 \subsection{Description}
 
+ The sequence detector which is to be described and
+ verified in this section is dedicated to have three
+ inputs -- serial \texttt{Data}, \texttt{Clock} and
+ \texttt{Reset}, and one \texttt{Flag} output.
+ The output is to rise \emph{high} on the clock
+ cycle after the given sequence had been received
+ at the \texttt{Data} input. The \texttt{Reset}
+ input (\emph{active-high}) is to clear the
+ state of the circuit and \emph{Clock} triggers
+ on the positive edge.
+
+ The details of implementation of this entity
+ are discussed below, the two diagrams on this
+ page (\ref{fsm:usd} and \ref{block:usd}) show
+ the final design of the sequence detector,
+ which has a Finite State Machine with three
+ states, and it use a shift-register to store
+ the serial data and match sequences with
+ pre-defined bit vector.
+
 \subsubsection{Algorithm Considerations}
 
  \begin{figure}
@@ -476,6 +493,11 @@ caption={\emph{Behavioural implementation of 8-bit counter (brief)}}]
  \end{tikzpicture}
  \end{figure}
 
+\begin{figure}
+\center
+\includegraphics[scale=1.75,angle=0]{graphs/seq_1101.eps}
+\caption{\small{Block diagram}} \label{block:usd}
+\end{figure}
 
  Firstly it would be appropriate to contrast the
  VHDL design pattern with more classic programming.
@@ -490,7 +512,7 @@ caption={\emph{Behavioural implementation of 8-bit counter (brief)}}]
  applied (including automated methods with scripting,
  pre-processor macros, compiler hacking or other).
 
-
+\pagebreak
 \lstinputlisting[label=proto:seq,language=C,
 caption={\emph{Brief algorithm prototype of sequence detector in C}}]
 {sequence_detector_algorithm.listing.c}
@@ -515,8 +537,110 @@ caption={\emph{Brief algorithm prototype of sequence detector in C}}]
  this task, unless the system is to be configured
  during run-time (i.e. the sequence that is to be
  detected will be loaded as an input).
+ The listings and simulation results below shall
+ demonstrate how give a complexity $N$ in VHDL
+ gets optimized to a lesser complex result when
+ synthesised.
+
 
 \subsection{Verification}
+
+ A number of design decisions had been tested
+ before the code listed in \ref{code:usd} had
+ been developed. The figure \ref{fsm:usd} on
+ the top of this section shows the transitions
+ between three states.
+
+ One of tried approaches have used a counter
+ variable to index the incoming serial bitstream
+ on \texttt{Data} pin and compare it to internal
+ vector $X$. This early version can be viewed
+ in the on-line code repository\footnote{
+ Earlier code revision:
+ \url{https://github.com/errordeveloper/vhdl-misc-ct3032n/blob/89419c215dbf80138a66ae61bbff5b5aca3976e0/code/multifunc/seq_fsm.vhd}}
+ After this was proven unsuccessful, the idea
+ was to try implementing a shift-register
+ to provide buffering for the serial data,
+ and therefore synchronise the two \texttt{process}
+ block in this manner. It turned out that by
+ using \emph{\texttt{'\&'} concatenation}
+ operator inside of the condition branch
+ with \emph{\texttt{'if(rising\_edge(Clock))'}},
+ provides an appropriate shift-register for
+ de-serialising and buffering the data stream.
+
+ To minimise the dimension of the FSM segment,
+ only 3-state machine is being used. There is
+ no particular need for defining any additional
+ state and in fact the \texttt{`zero`} state
+ may be eliminated, then synthesised logic
+ reduces to very simple circuit as show in
+ figures \ref{rtl:usd:1b} and \ref{rtl:usd:2b}.
+ The number of bits in match vector $X$ does
+ not affect the overall shape of the FSM, it
+ only increase the width of the data path.
+ Although, it is still quite useful to include
+ this \texttt{`zero`} state, since clearing
+ of the shift-register and \texttt{Flag} bit
+ may be needed in some applications. Using
+ single-line \emph{\texttt{'std\_match(data\_buf,X)'}}
+ function call is perhaps the most appropriate
+ method in the \texttt{`read`} state (it is
+ also show in RTL diagrams \ref{rtl:usd:1b}
+ and \ref{rtl:usd:2b} that this function
+ reduces to very simple logic circuit block).
+
+\subsubsection*{Simulation Results}
+
+ The simulation had carried out for two
+ version of this sequence detector.
+ 
+ Firstly, a 4-bit sequence \texttt{'0b0011'}
+ had been applied. A pseudo-random stimulus
+ vector had been fed into the simulator
+ via \emph{ModelSIM's Tcl} interactive console.
+ The result waveforms from this session
+ are in figures \ref{wave:usd:t1w1} and
+ \ref{wave:usd:t1w2}. The \texttt{Flag}
+ output is asserted in \texttt{`done`}
+ state when the \texttt{'0b0011'} sequence
+ is detected in \texttt{'data\_buf'}.
+ Therefore operation of this entity is
+ considered to be correct.
+
+ A 9-bit sequence \texttt{'0b010110011'}
+ (\texttt{'0x0B3'}) had been applied
+ in the second simulator session.
+ Produced waveform would be too long
+ to include here, therefore only
+ two important regions had been
+ captured for printing (see figures
+ \ref{wave:usd:t2w1} and \ref{wave:usd:t2w2}).
+ These results also demonstrate
+ fully-functional detection of now wider bit
+ sequence that appear in the shift-register
+ (\texttt{data\_buf}) at 12000ns mark.
+ It had been noticed that data endianess
+ may need to be modified. The sequence
+ which had been fed in simulation had
+ to be in reverse order. But this is
+ in general not an issue, since many
+ digital systems handle data either way.
+
+
+\subsubsection*{Conclusion}
+
+ The simulation of code listed below had
+ proven that arbitrary complexity is very
+ straight-forward to implement in VHDL.
+ It is probably possible to achieve
+ different behaviour of when the output
+ signal is being asserted, but this would
+ involve an alternative approach, perhaps
+ adding an extra clock with faster rate.
+ That is outside of the purpose of this
+ report and depends on the application.
+
 
 \pagebreak
 \lstinputlisting[label=code:usd,
@@ -525,40 +649,77 @@ caption={\emph{FSMD implementation of Universal Sequence Detector}}]
 
 \begin{figure} \center
 
-\includegraphics[scale=0.6,angle=-90]{graphs/seq_test1.rtl_BASIC4.eps}
-\caption{\small{RTL view: Basic USEQD design (no "zero" state, for "$0011$")}} \label{rtl:usd:1b}
+\includegraphics[scale=0.8,angle=-90]{graphs/seq_test1.rtl_BASIC4.eps}
+\caption{\small{RTL view: Basic USEQD design (no `zero` state, for '$0b0011$')}} \label{rtl:usd:1b}
 
-\includegraphics[scale=0.6,angle=-90]{graphs/seq_test1.rtl_0011.eps}
-\caption{\small{RTL view: Full USEQD using FSM with buffered data input (for "$0011$")}} \label{wave:usd:1}
+\includegraphics[scale=0.8,angle=-90]{graphs/seq_test1.rtl_0011.eps}
+\caption{\small{RTL view: Full USEQD using FSM with buffered data input (for '$0b0011$')}} \label{wave:usd:1}
 \end{figure}
 
 \begin{figure} \center
 
 \includegraphics[scale=0.49,angle=-90]{graphs/seq_test1.ps}
-\caption{\small{Detecting sequence $0011$}} \label{wave:usd:t1w1}
+\caption{\small{Detecting sequence '$0b0011$'}} \label{wave:usd:t1w1}
 
 \includegraphics[scale=0.49,angle=-90]{graphs/seq_test1.BASIC.ps}
-\caption{\small{Detecting sequence $0011$ (with basic circuit)}} \label{wave:usd:t1w2}
+\caption{\small{Detecting sequence '$0b0011$' (with basic circuit)}} \label{wave:usd:t1w2}
 \end{figure}
 
 \begin{figure} \center
 
-\includegraphics[scale=0.6,angle=-90]{graphs/seq_test1.rtl_BASIC9.eps}
-\caption{\small{RTL view: Basic 9-bit USEQD design}} \label{rtl:usd:1b}
+\includegraphics[scale=0.8,angle=-90]{graphs/seq_test1.rtl_BASIC9.eps}
+\caption{\small{RTL view: Basic 9-bit USEQD design}} \label{rtl:usd:2b}
 
-\includegraphics[scale=0.6,angle=-90]{graphs/seq_test1.rtl_010110011.eps}
-\caption{\small{RTL view: Full 9-bit USEQD using FSM with buffered data input}} \label{wave:usd:1}
+\includegraphics[scale=0.8,angle=-90]{graphs/seq_test1.rtl_010110011.eps}
+\caption{\small{RTL view: Full 9-bit USEQD using FSM with buffered data input}} \label{wave:usd:2}
 \end{figure}
 
 \begin{figure} \center
 
 \includegraphics[scale=0.49,angle=-90]{graphs/seq_test2.UNMATCHED.ps}
-\caption{\small{Detecting sequence $010110011$ (without match)}} \label{wave:usd:t2w1}
+\caption{\small{Detecting sequence '$0b010110011$' (without match)}} \label{wave:usd:t2w1}
 
 \includegraphics[scale=0.49,angle=-90]{graphs/seq_test2.MATCHED.ps}
-\caption{\small{Detecting sequence $010110011$}} \label{wave:usd:t2w2}
+\caption{\small{Detecting sequence '$0b10110011$'}} \label{wave:usd:t2w2}
 \end{figure}
 
 
+\chapter{Conclusion}
+
+\subsection*{Learning Outcome}
+ During completion of this case study a number
+ of techniques were exercised in VHDL design,
+ verification and simulation. As it had been
+ already mentioned the software used to aid
+ the workflow is \emph{Altera Quartus II} and
+ \emph{ModelSIM (Altera Edition)}. Few other
+ packages which were tested during the case
+ study include \emph{GTKwave} and \emph{Doxygen},
+ but the output was not used in this report.
+
+ The aspects of behavioural and FSM design were
+ studied, utilising IEEE standard logic and
+ numeric libraries. Some of the major subjects
+ which are still to be studied are timing
+ analysis and physical aspects of FPGAs.
+ In the next stage few of the above designs
+ should be packaged for later re-use.
+
+\subsection*{Links}
+ \begin{itemize}
+ \item Case Study Source Code Repository \\
+ \url{https://github.com/errordeveloper/vhdl-misc-ct3032n/}
+ \item The Commit History (The Log Book) \\
+ \url{https://github.com/errordeveloper/vhdl-misc-ct3032n/commits/}
+ \end{itemize}
+
+\subsection*{References}
+ The fallowing page contents were of great use
+ for reference to VHDL methods:
+
+ \begin{itemize}
+ \item Dr J Plusquellic's Homepage, ECE, UNM \\
+ \url{http://www.ece.unm.edu/~jimp/vhdl_fpgas/}
+ \end{itemize}
 
 \end{document}
