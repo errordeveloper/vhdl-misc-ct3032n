@@ -12,3 +12,4 @@ code/projects/
 *.ini
 code/multifunc/74-series/generated/db/
 *.ps~.gz
+doc/graphs/backup/
