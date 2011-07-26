@@ -10,3 +10,6 @@ doc/work/
 code/projects/
 *.cf
 *.ini
+code/multifunc/74-series/generated/db/
+*.ps~.gz
+doc/graphs/backup/

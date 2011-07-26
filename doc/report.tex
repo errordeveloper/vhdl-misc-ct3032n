@@ -1,0 +1,725 @@
+\documentclass[10pt,a4paper]{report}
+
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[utf8x]{inputenc}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{MnSymbol}
+\usepackage[electronic]{ifsym}
+\usepackage{listings}
+%\usepackage{marvosym}
+
+\usepackage{url}
+
+\usepackage{tikz}
+\usetikzlibrary{automata,positioning,shapes}
+\usepackage{pstricks-add}
+
+\lstset{ %
+%%% deletecomment=[l]--!,
+language=VHDL,
+%basicstyle=\footnotesize,
+%numbers=left,
+%numberstyle=\footnotesize,
+%stepnumber=2,
+numbersep=5pt,
+%backgroundcolor=\color{white},
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+frame=single,
+%tabsize=2,
+captionpos=b,
+breaklines=true,
+breakatwhitespace=false,
+title=\lstcaption,
+%commentstyle=\color{blue},
+}
+
+\author{Ilya Dmitrichenko}
+\title{Introduction to VHDL \\ Case Study}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Preface}
+
+ The task of this homework was to learn
+ VHDL design and verification by example.
+ A selection of standard digital circuits
+ has been provided, of which a number
+ of combinational and multifunction
+ entities were implemented.
+
+ Code verification and simulation were
+ performed using \emph{Altera Quartus II}
+ software suite with \emph{Mentor Graphics
+ ModelSIM (AE 6.5)} simulator.
+ Only basic RTL simulation had been
+ carried out, without any timing constraints
+ applied. The \emph{ModelSIM} test waveforms
+ were generated using either GUI or Tcl scripts,
+ VHDL testbenches were designed for some of
+ the entities.
+
+ The fallowing two chapters are describing
+ the implementation for each of the design
+ units, fallowed by source code listing\footnote{
+ The comments were removed, since all the
+ information is provided in the text. The
+ source code can be also viewed and downloaded
+ from online repository at the fallowing URL: \\
+ \emph{\texttt{https://github.com/errordeveloper/vhdl-misc-ct3032n/}}}
+ and simulation results.
+
+
+\tableofcontents
+\listoffigures
+
+\chapter{Design Units: Combinational Logic}
+
+\section{Comparator}
+
+\subsection{Description}
+
+ Comparator is a generic logic circuit that
+ has two input ports and three single-bit
+ outputs. Only one of each of the outputs
+ may be asserted high at any given time.
+ This design entity has two 4-bit inputs
+ ($A$ \& $B$). When $A < B$, output $L$
+ is high; when $A = B$ then $E$ is high;
+ $A > B$ then $G$ is high.
+
+ Behavioural VHDL implementation of this
+ uses \texttt{if-elsif} conditions. Currently
+ it will only work for unsigned numbers
+ of arbitrary bit-width.
+
+\subsection{Verification}
+
+
+ %\begin{wrapfigure}{r}{1\textwidth}
+ \begin{figure}[h!]
+ \center
+ \includegraphics[scale=0.37,angle=-90]{graphs/COMP4_simulation.ps}
+ \caption{\small{Simulation output with counter sequences applied
+ to 4-bit comparator}} \label{wave:comp4}
+ \end{figure}
+
+\lstinputlisting[label=code:comp4,
+caption={\emph{Behavioural implementation of 4-bit Comparator}}]
+{../code/comblogic/comparator_4bit.listing.vhd}
+
+\pagebreak
+\section{Priority Encoder}
+\subsection{Description}
+
+ Priority Encoder (PE) is a generic combinational
+ circuit that is most commonly used to attach
+ several inputs to one external interrupt pin of
+ a microcontroller. Taking a number of lines, it
+ outputs only one input value based on priority.
+ If there is an event at input $V(0)$, then other
+ lines are ignored. If line $V(0)$ is quite,
+ then input $V(1)$ is checked, the last line
+ $V(n)$ will be output only when $V(n-1)$ and all
+ other lines are quite.
+
+ PE also has an output for the address of currently
+ active line. This design entity has four input
+ lines, and uses 2-bit addressing. Note that the
+ address of previously active line will be held
+ until it changes, otherwise an extra bit would
+ be needed to implement addressing of inactivity.
+ A procedure \emph{\texttt{maskf()}} had been
+ coded to facilitate addressing using casting
+ from integer argument to logic vector.
+ This procedure takes vector $V$, masks one bit
+ $M$ and outputs $V(M)$ to the bit vector bus $X$,
+ writing the binary value of masking bit $M$ to the
+ address vector bus $W$. The event condition checking
+ has to be done prior the procedure call.
+
+
+\subsection{Verification}
+
+ The code in listing \ref{code:pe4} demonstrates
+ two valid design options and one invalid.
+
+ This VHDL design uses \texttt{if-generate} conditions
+ depending on value of \texttt{generic} variables,
+ alternatively multiple architectures could be
+ coded, but that would take more lines of code.
+ The invalid version uses \emph{"don't care"}
+ \texttt{case} branching, though this approach
+ cannot be synthesised.
+ Two very similar alternatives are shown in
+ the listing (\ref{code:pe4}).
+ It is probably most straight-forward way to
+ use \emph{\texttt{std\_match()}} function from
+ \texttt{IEEE.NUMERIC\_STD} library.
+ 
+ Only level-triggering is implemented, since
+ use of several \emph{\texttt{rising\_edge()}}
+ conditions introduces multiple clocking issues,
+ which are hard to overcome.
+
+ The simulation output is shown in figure \ref{wave:pe4}.
+ 
+ \begin{figure}[h!]
+ \center
+ \includegraphics[scale=0.3495,angle=-90]{graphs/priority_encoder_4bit.ps}
+ \caption{\small{Random stimulus applied to inputs lines of 4-bit PE}} \label{wave:pe4}
+ \end{figure}
+
+\lstinputlisting[label=code:pe4,
+caption={\emph{Behavioural implementation of 4-bit PE}}]
+{../code/comblogic/priority_encoder_4bit.listing.vhd}
+
+\pagebreak
+\section{Arithmetic Logic Unit}
+\subsection{Description}
+
+ Arithmetic Logic Units (ALUs) are some of
+ the most common building block in any
+ processor architecture.
+
+ This design entity has three 4-bit inputs
+ ($A$ \& $B$), operation instruction input
+ ($I$) and result output ($X$). This is a
+ combinational logic circuit and does not
+ require a clock.
+
+ Please note, the carry bits are ignored\footnote{
+ Carry bit can be implemented by adding an extra
+ 1-bit vector input \texttt{(0 DOWNTO 0)} and by
+ summing two 4-bit vectors with 3rd 1-bit vector
+ the VHDL synthesis tool is expected to recognise
+ it as the carry input. For simplicity of the
+ design, this had been omitted.}.
+ \emph{Multiplication} and \emph{division} are not
+ yet implemented\footnote{\emph{Multiplication} needs
+ 8-bit vector to output the product and \emph{division}
+ implies conversion to floating point or integer
+ approximation.}, but instructions \texttt{'0x2'} and
+ \texttt{'0x3'} had been reserved. All logic operations
+ (except \emph{inversion}\footnote{\emph{Inversion}
+ operates on one input only.}) were implemented.
+
+ Below is the list of instructions for this ALU.
+ \begin{itemize}
+ \item \texttt{Arithmetic:}
+ \begin{description}
+ \item \texttt{'0x0'} \emph{addition}
+ \item \texttt{'0x1'} \emph{subtraction}
+ \end{description}
+ \item \texttt{Logic:}
+ \begin{description}
+ \item \texttt{'0x4'} \emph{OR}
+ \item \texttt{'0x5'} \emph{XOR}
+ \item \texttt{'0x6'} \emph{XNOR}
+ \item \texttt{'0x7'} \emph{NOR}
+ \item \texttt{'0x8'} \emph{AND}
+ \item \texttt{'0x9'} \emph{NAND}
+ \end{description}
+ \end{itemize}
+
+ In addition to \texttt{IEEE.STD\_LOGIC\_1164},
+ this entity  requires fallowing libraries:
+ \begin{itemize}
+ \item \texttt{IEEE.STD\_LOGIC\_ARITH}
+ for arithmetic operations
+ \item \texttt{IEEE.STD\_LOGIC\_SIGNED}
+ for operations with unsigned integers
+ \end{itemize}
+
+\subsection{Verification}
+
+ The code in lisling \ref{code:alu} had been synthesised
+ using and the Register Transfer Level (RTL) circuit is
+ shown in figure \ref{rtl:alu}.
+ To verify correct operation of this design, a stimulus
+ needs to be generated. Applying a count sequence may
+ appear to be appropriate, though it would produce
+ numerous waveform figures. Though a random wave may
+ be used, it would make results harder to read on paper.
+
+ A VHDL testbench had been generated and edited for the
+ ALU simulation\footnote{The testbench code is too long
+ to be included in the report, it can be viewed at the
+ fallowing URL: \emph{\texttt{
+\url{https://github.com/errordeveloper/vhdl-misc-ct3032n/blob/master/code/comblogic/alu_4bit.vht}}}
+%\\ The Tcl script for \emph{ModelSim} is located at:\\
+%\url{https://github.com/errordeveloper/vhdl-misc-ct3032n/blob/master/code/comblogic/alu_4bit.do.tcl}\\
+}.
+
+ See figures \ref{wave:alu:t1} and \ref{wave:alu:t2}
+ for the output waveforms.
+
+\begin{figure}
+\includegraphics[scale=0.5,angle=-90]{graphs/alu_4bit_test1.ps}
+\caption{\small{Test result of arithmetic modes}} \label{wave:alu:t1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[scale=0.5,angle=-90]{graphs/alu_4bit_test2p1.ps}
+\includegraphics[scale=0.5,angle=-90]{graphs/alu_4bit_test2p2.ps}
+\caption{\small{Test result of logic operations}} \label{wave:alu:t2}
+\end{figure}
+
+
+ Figure \ref{wave:alu:t1} shows \texttt{for-loop} test
+ in \emph{addition} and \emph{subtraction} modes. The
+ overflow occurs at rather low values, proving that this
+ ALU is not operational for arithmetics with result values
+ greater then $+6$ or less then $-8$.
+
+ Waveforms in figure \ref{wave:alu:t2} show the logic
+ mode test results applying same input bit sequences.
+ The testbench used a \texttt{for-loop} to cycle through
+ the operator commands. The results were manually checked
+ and found to be correct.
+
+ \subsubsection{Conclusion}
+
+ A 4-bit ALU without a carry output is rather unusable
+ for arithmetics. This design would be useful as a building
+ block to produce 8-, 12-, 16-, 24-bit and greater width
+ units. However, there is no need for such component in VHDL,
+ since only a minor modification to the ALU code  would be
+ required to increase the capabilities. Thought, it is not
+ as simple when hardware constraints are in place, because
+ many different adder design pattern are available and the
+ decision has to be made in terms of physical area, performance
+ or power optimisation preferences made before loading the
+ circuit design into programmable devices.
+
+\begin{figure}
+\includegraphics[scale=0.7]{graphs/alu_4bit.rtl.ps}
+\caption{\small{RTL circuit diagram for ALU}} \label{rtl:alu}
+\end{figure}
+\pagebreak
+
+\lstinputlisting[label=code:alu,
+caption={\emph{Behavioural implementation of 4-bit ALU}}]
+{../code/comblogic/alu_4bit.listing.vhd}
+
+
+\chapter{Design Units: Multifunctional Logic}
+
+\section{4-bit Register}
+\subsection{Description}
+
+ Figure \ref{block:reg4} shows a block diagram with
+ inputs and outputs of the register. \\ The opcodes for
+ \texttt{Control} inputs are as fallows:
+
+ \begin{tabular}{|c|c|l l|}
+ \hline
+ \texttt{Enable} & \texttt{Control}  & \emph{Command} & \emph{Function} \\
+ \hline
+
+ \texttt{0} & \texttt{XX} & \emph{HOLD} & $Q^{n+1} = Q^n$ \\
+
+ \texttt{1} & \texttt{00} & \emph{CLEAR} & $Q^{n+1} = 0$ \\
+
+ \texttt{1} & \texttt{11} & \emph{LOAD} & $Q^{n+1} = D^n$ \\
+
+ \texttt{1} & \texttt{01} & \emph{OR BITS} & $Q^{n+1} = Q^n \cdot D^n$ \\
+
+ \texttt{1} & \texttt{10} & \emph{AND BITS} & $Q^{n+1} = Q^n \oplus D^n$ \\
+
+ \hline
+
+ \end{tabular}
+
+\begin{figure}
+\center
+\includegraphics[scale=0.75,angle=-90]{graphs/reg_4bit.eps}
+\caption{\small{Multifunctional register block diagram}} \label{block:reg4}
+\end{figure}
+
+\subsection{Verification}
+
+ To simulate the register behaviour a simple testbench
+ had been coded. The waveform in figure \ref{wave:reg4}
+ demonstrates that changes in the output occur synchronously
+ and the operation of this model does correspond to the given
+ specification. 
+ For example, the output doesn't clear until \texttt{Enable}
+ input goes \emph{\texttt{high}} disregarding the state of
+ \texttt{Control} input, also the output transaction doesn't
+ occur until the rising edge of the \texttt{Clock} signal.
+ Logic operations are also correct and synchronous.
+ The RTL diagram (figure \ref{rtl:reg4}) appears to be
+ very linear, nevertheless during HDL design of this model
+ there had been a few errors made when the RTL viewer
+ came in handy.
+
+\begin{figure}
+\includegraphics[scale=0.7,angle=-90]{graphs/reg_4bit.rtl.eps}
+\caption{\small{Multifunctional register RTL circuit diagram}} \label{rtl:reg4}
+\end{figure}
+
+\begin{figure}
+\center
+\includegraphics[scale=0.4,angle=-90]{graphs/reg_4bit_test.ps}
+\caption{\small{Multifunctional register simulation}} \label{wave:reg4}
+\end{figure}
+
+\pagebreak
+\lstinputlisting[label=code:reg4,
+caption={\emph{Behavioural implementation of 4-bit register (brief)}}]
+{../code/multifunc/reg_4bit.listing.vhd}
+
+\pagebreak
+\section{8-bit Counter}
+\subsection{Description}
+ 
+ An attempt to implement multifunction counter had
+ been made. It is featuring two 8-bit wide ports:
+ count output and increment input, 2-bit mode control
+ as well as \emph{mode-sensitive} overflow indicator.
+
+ In regards to the width of the \texttt{Increment}
+ port, there no particular need to have 8-bit, however
+ the VHDL synthesis tools will apply an \emph{8x8-adder}
+ if the increment value of the counter had been shorter.
+
+ The \texttt{Terminate} pin is \emph{mode-sensitive}
+ overflow detector, it goes high one clock cycle before
+ the \texttt{Count} output overflows.
+ That is when it's \texttt{'0x00'} in
+ \emph{count-down (}\texttt{'0b01'}\emph{)},
+ and \texttt{'0xff'} in
+ \emph{count-up (}\texttt{'0b10'}\emph{)} mode.
+
+ \begin{itemize}
+ \item The \texttt{Control} port accepts fallowing opcodes:
+ \begin{description}
+ \item \texttt{'0b10'} \emph{count-up}
+ \item \texttt{'0b01'} \emph{count-down}
+ \item \texttt{'0b11'} \emph{clear output to $255$}
+ \item \texttt{'0b00'} \emph{clear output to $0$}
+ \end{description}
+ \end{itemize}
+
+ Same convention for signal naming had been employed
+ for in this code \emph{(see listing below (\ref{code:c8})
+ for \texttt{q\_reg}, \texttt{q\_next} \& \texttt{c\_sig})}.
+ Also the \texttt{Control} and \texttt{Increment} inputs
+ are latched in order to prevent any sudden changes in
+ these affecting the output stability. It may be a good
+ idea to add \texttt{if-generate} conditions to disable
+ or enable such behaviour. Also a few \texttt{generic}
+ parameter need to be added to achieve fully re-usable
+ library code.
+
+\subsection{Verification}
+
+ The figures \ref{wave:c8:w1} and \ref{wave:c8:w2} are
+ to approve correct operation of this 8-bit counter
+ design. Various values of \texttt{Increment} input
+ were forced in the simulation, and it would take
+ several pages to print out those waveforms. Therefore
+ below is the extract demonstrating the key performance
+ factors. As mentioned above, the latching of the
+ \emph{Control} input is for stability purpose, though
+ it can be seen as \emph{"slowness"} -- this is shown
+ by the waveforms in figure \ref{wave:c8:w2}.
+ 
+
+\begin{figure}
+\center
+\includegraphics[scale=0.49,angle=-90]{graphs/counter_8bit_test1.ps}
+\caption{\small{Counter simulation: up-count overflow region}} \label{wave:c8:w1}
+
+\center
+\includegraphics[scale=0.49,angle=-90]{graphs/counter_8bit_test2.ps}
+\caption{\small{Counter simulation: down-count overflow region \& 1-cycle latch delays}} \label{wave:c8:w2}
+\end{figure}
+
+\pagebreak
+\lstinputlisting[label=code:c8,
+caption={\emph{Behavioural implementation of 8-bit counter (brief)}}]
+{../code/multifunc/counter_8bit.listing.vhd}
+
+\pagebreak
+\section{Universal Sequence Detector}
+\subsection{Description}
+
+ The sequence detector which is to be described and
+ verified in this section is dedicated to have three
+ inputs -- serial \texttt{Data}, \texttt{Clock} and
+ \texttt{Reset}, and one \texttt{Flag} output.
+ The output is to rise \emph{high} on the clock
+ cycle after the given sequence had been received
+ at the \texttt{Data} input. The \texttt{Reset}
+ input (\emph{active-high}) is to clear the
+ state of the circuit and \emph{Clock} triggers
+ on the positive edge.
+
+ The details of implementation of this entity
+ are discussed below, the two diagrams on this
+ page (\ref{fsm:usd} and \ref{block:usd}) show
+ the final design of the sequence detector,
+ which has a Finite State Machine with three
+ states, and it use a shift-register to store
+ the serial data and match sequences with
+ pre-defined bit vector.
+
+\subsubsection{Algorithm Considerations}
+
+ \begin{figure}
+ \caption{FSM of Universal Sequence Detector} \label{fsm:usd}
+ \vspace*{0.5cm}
+ \begin{tikzpicture}[>=latex, shorten >=1pt, node distance=1in,
+ 	on grid, auto, initial text=\fbox{\texttt{\emph{Reset}}}]
+
+ \node[state, initial]	(zero)			{\texttt{"ZERO"}};
+ \node[state]		(read) [right=of zero]	{\texttt{"READ"}};
+ \node[state]		(done) [right=of read, label=0:{\fbox{\texttt{\emph{Flag}}$\updownarrows$}}]	{\texttt{"DONE"}};
+
+ \path[->]
+ 	   (zero) edge node {} (read)
+	   (read) edge [loop below] node {0} (read)
+	   (read) edge [bend left] node[swap] {1} (done)
+	   (done) edge [bend left] node[swap] {} (read);
+
+ \end{tikzpicture}
+ \end{figure}
+
+\begin{figure}
+\center
+\includegraphics[scale=1.75,angle=0]{graphs/seq_1101.eps}
+\caption{\small{Block diagram}} \label{block:usd}
+\end{figure}
+
+ Firstly it would be appropriate to contrast the
+ VHDL design pattern with more classic programming.
+ Below is a basic implementation for an equivalent
+ algorithmic structure in a higher-level programming
+ language. In terms of optimisation, if the pattern
+ details are to be supplied at run-time, then there
+ is no particular need for the code to be optimised.
+ An attempt to do so may in fact increase the duration
+ of execution. Suppose the values are know before the
+ compilation, then a variety of techniques could be
+ applied (including automated methods with scripting,
+ pre-processor macros, compiler hacking or other).
+
+\pagebreak
+\lstinputlisting[label=proto:seq,language=C,
+caption={\emph{Brief algorithm prototype of sequence detector in C}}]
+{sequence_detector_algorithm.listing.c}
+
+ The VHDL as language provide plenty of choices,
+ for example some data types that it allows do
+ not appear very low-level at first. And it then
+ turns out that this language dictates certain
+ restriction on how those types may be used.
+ Same applies to various constructs (such as loops)
+ and other elements of the language. Most of the
+ code listing in this report are indeed examples
+ of standard VHDL code patterns. Most of the above
+ listings have not been intended as very generic 
+ (i.e. re-usable) peaces.
+
+ In this last section of the case study an attempt
+ was made to produces the most generic design entity.
+ This will result in code, which is not necessarily
+ optimised to detect a particular sequence of bits.
+ Thought, the VHDL synthesis tools are to accomplish
+ this task, unless the system is to be configured
+ during run-time (i.e. the sequence that is to be
+ detected will be loaded as an input).
+ The listings and simulation results below shall
+ demonstrate how give a complexity $N$ in VHDL
+ gets optimized to a lesser complex result when
+ synthesised.
+
+
+\subsection{Verification}
+
+ A number of design decisions had been tested
+ before the code listed in \ref{code:usd} had
+ been developed. The figure \ref{fsm:usd} on
+ the top of this section shows the transitions
+ between three states.
+
+ One of tried approaches have used a counter
+ variable to index the incoming serial bitstream
+ on \texttt{Data} pin and compare it to internal
+ vector $X$. This early version can be viewed
+ in the on-line code repository\footnote{
+ Earlier code revision:
+ \url{https://github.com/errordeveloper/vhdl-misc-ct3032n/blob/89419c215dbf80138a66ae61bbff5b5aca3976e0/code/multifunc/seq_fsm.vhd}}
+ After this was proven unsuccessful, the idea
+ was to try implementing a shift-register
+ to provide buffering for the serial data,
+ and therefore synchronise the two \texttt{process}
+ block in this manner. It turned out that by
+ using \emph{\texttt{'\&'} concatenation}
+ operator inside of the condition branch
+ with \emph{\texttt{'if(rising\_edge(Clock))'}},
+ provides an appropriate shift-register for
+ de-serialising and buffering the data stream.
+
+ To minimise the dimension of the FSM segment,
+ only 3-state machine is being used. There is
+ no particular need for defining any additional
+ state and in fact the \texttt{`zero`} state
+ may be eliminated, then synthesised logic
+ reduces to very simple circuit as show in
+ figures \ref{rtl:usd:1b} and \ref{rtl:usd:2b}.
+ The number of bits in match vector $X$ does
+ not affect the overall shape of the FSM, it
+ only increase the width of the data path.
+ Although, it is still quite useful to include
+ this \texttt{`zero`} state, since clearing
+ of the shift-register and \texttt{Flag} bit
+ may be needed in some applications. Using
+ single-line \emph{\texttt{'std\_match(data\_buf,X)'}}
+ function call is perhaps the most appropriate
+ method in the \texttt{`read`} state (it is
+ also show in RTL diagrams \ref{rtl:usd:1b}
+ and \ref{rtl:usd:2b} that this function
+ reduces to very simple logic circuit block).
+
+\subsubsection*{Simulation Results}
+
+ The simulation had carried out for two
+ version of this sequence detector.
+ 
+ Firstly, a 4-bit sequence \texttt{'0b0011'}
+ had been applied. A pseudo-random stimulus
+ vector had been fed into the simulator
+ via \emph{ModelSIM's Tcl} interactive console.
+ The result waveforms from this session
+ are in figures \ref{wave:usd:t1w1} and
+ \ref{wave:usd:t1w2}. The \texttt{Flag}
+ output is asserted in \texttt{`done`}
+ state when the \texttt{'0b0011'} sequence
+ is detected in \texttt{'data\_buf'}.
+ Therefore operation of this entity is
+ considered to be correct.
+
+ A 9-bit sequence \texttt{'0b010110011'}
+ (\texttt{'0x0B3'}) had been applied
+ in the second simulator session.
+ Produced waveform would be too long
+ to include here, therefore only
+ two important regions had been
+ captured for printing (see figures
+ \ref{wave:usd:t2w1} and \ref{wave:usd:t2w2}).
+ These results also demonstrate
+ fully-functional detection of now wider bit
+ sequence that appear in the shift-register
+ (\texttt{data\_buf}) at 12000ns mark.
+ It had been noticed that data endianess
+ may need to be modified. The sequence
+ which had been fed in simulation had
+ to be in reverse order. But this is
+ in general not an issue, since many
+ digital systems handle data either way.
+
+
+\subsubsection*{Conclusion}
+
+ The simulation of code listed below had
+ proven that arbitrary complexity is very
+ straight-forward to implement in VHDL.
+ It is probably possible to achieve
+ different behaviour of when the output
+ signal is being asserted, but this would
+ involve an alternative approach, perhaps
+ adding an extra clock with faster rate.
+ That is outside of the purpose of this
+ report and depends on the application.
+
+
+\pagebreak
+\lstinputlisting[label=code:usd,
+caption={\emph{FSMD implementation of Universal Sequence Detector}}]
+{../code/multifunc/seq_fsm.listing.vhd}
+
+\begin{figure} \center
+
+\includegraphics[scale=0.8,angle=-90]{graphs/seq_test1.rtl_BASIC4.eps}
+\caption{\small{RTL view: Basic USEQD design (no `zero` state, for '$0b0011$')}} \label{rtl:usd:1b}
+
+\includegraphics[scale=0.8,angle=-90]{graphs/seq_test1.rtl_0011.eps}
+\caption{\small{RTL view: Full USEQD using FSM with buffered data input (for '$0b0011$')}} \label{wave:usd:1}
+\end{figure}
+
+\begin{figure} \center
+
+\includegraphics[scale=0.49,angle=-90]{graphs/seq_test1.ps}
+\caption{\small{Detecting sequence '$0b0011$'}} \label{wave:usd:t1w1}
+
+\includegraphics[scale=0.49,angle=-90]{graphs/seq_test1.BASIC.ps}
+\caption{\small{Detecting sequence '$0b0011$' (with basic circuit)}} \label{wave:usd:t1w2}
+\end{figure}
+
+\begin{figure} \center
+
+\includegraphics[scale=0.8,angle=-90]{graphs/seq_test1.rtl_BASIC9.eps}
+\caption{\small{RTL view: Basic 9-bit USEQD design}} \label{rtl:usd:2b}
+
+\includegraphics[scale=0.8,angle=-90]{graphs/seq_test1.rtl_010110011.eps}
+\caption{\small{RTL view: Full 9-bit USEQD using FSM with buffered data input}} \label{wave:usd:2}
+\end{figure}
+
+\begin{figure} \center
+
+\includegraphics[scale=0.49,angle=-90]{graphs/seq_test2.UNMATCHED.ps}
+\caption{\small{Detecting sequence '$0b010110011$' (without match)}} \label{wave:usd:t2w1}
+
+\includegraphics[scale=0.49,angle=-90]{graphs/seq_test2.MATCHED.ps}
+\caption{\small{Detecting sequence '$0b10110011$'}} \label{wave:usd:t2w2}
+\end{figure}
+
+
+\chapter{Conclusion}
+
+\subsection*{Learning Outcome}
+ During completion of this case study a number
+ of techniques were exercised in VHDL design,
+ verification and simulation. As it had been
+ already mentioned the software used to aid
+ the workflow is \emph{Altera Quartus II} and
+ \emph{ModelSIM (Altera Edition)}. Few other
+ packages which were tested during the case
+ study include \emph{GTKwave} and \emph{Doxygen},
+ but the output was not used in this report.
+
+ The aspects of behavioural and FSM design were
+ studied, utilising IEEE standard logic and
+ numeric libraries. Some of the major subjects
+ which are still to be studied are timing
+ analysis and physical aspects of FPGAs.
+ In the next stage few of the above designs
+ should be packaged for later re-use.
+
+\subsection*{Links}
+ \begin{itemize}
+ \item Case Study Source Code Repository \\
+ \url{https://github.com/errordeveloper/vhdl-misc-ct3032n/}
+ \item The Commit History (The Log Book) \\
+ \url{https://github.com/errordeveloper/vhdl-misc-ct3032n/commits/}
+ \end{itemize}
+
+\subsection*{References}
+ The fallowing page contents were of great use
+ for reference to VHDL methods:
+
+ \begin{itemize}
+ \item Dr J Plusquellic's Homepage, ECE, UNM \\
+ \url{http://www.ece.unm.edu/~jimp/vhdl_fpgas/}
+ \end{itemize}
+
+\end{document}

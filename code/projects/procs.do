@@ -5,7 +5,9 @@ proc testseq { seq sig t } {
         
     force -freeze $sig [lindex $seq $c] 0;
     
-    run $t; }
+    if { [expr $t == 0] } then { run; } else { run $t }
+
+    }
     
 }
 
